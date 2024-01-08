@@ -1,0 +1,12 @@
+* 跟打器
+** 实现方式？
+
+- 发文 buffer，跟打 buffer
+
+- 只通过 pyim 或 emacs-rime ？
+
+- 比较两个 buffer 的内容？
+
+- 用 overlay 突出显示正、误
+
+
