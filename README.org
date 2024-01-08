@@ -9,4 +9,13 @@
 
 - 用 overlay 突出显示正、误
 
+** todolist 
+- [X] 创建 buffer
+- [X] 统计 pyim 的输入次数
+- [ ] diff highlight
+- [ ] emacs-rime?
+- [ ] 排除中文标点
+- [ ] 键法数据, 码长
+- [ ] 结束统计 trigger
+- [ ] 载文, 发文
 
