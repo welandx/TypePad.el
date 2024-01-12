@@ -3,7 +3,8 @@
   "typepad"
   "Major mode for typepad."
   (setq-local cursor-type 'bar)
-  (setq-local cursor-in-non-selected-windows nil))
+  ;; (setq-local cursor-in-non-selected-windows nil)
+  )
 
 ;; define a mode for typepad readonly buffer
 (define-derived-mode typepad-readonly-mode fundamental-mode
@@ -56,9 +57,9 @@
       (cons (format " %d" count) mode-line-misc-info))))
 
 ;; only count the key in the writable buffer
-(add-hook 'typepad-mode-hook
-          (lambda ()
-            (add-hook 'post-command-hook 'typepad-count-key nil t)))
+;; (add-hook 'typepad-mode-hook
+;;           (lambda ()
+;;             (add-hook 'post-command-hook 'typepad-count-key nil t)))
 
 ;; define the face for diff highlight
 (defface typepad-delete-face
@@ -109,6 +110,6 @@
                                  ((eq type ?+) 'typepad-insert-face))))))))))))
 
 ;; do the highlight when the writable buffer changed
-(add-hook 'typepad-mode-hook
-          (lambda ()
-            (add-hook 'post-command-hook 'typepad-highlight-diff nil t)))
+;; (add-hook 'typepad-mode-hook
+;;           (lambda ()
+;;             (add-hook 'post-command-hook 'typepad-highlight-diff nil t)))
