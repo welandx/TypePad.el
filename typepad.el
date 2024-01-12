@@ -112,5 +112,3 @@
 (add-hook 'typepad-mode-hook
           (lambda ()
             (add-hook 'post-command-hook 'typepad-highlight-diff nil t)))
-
-
