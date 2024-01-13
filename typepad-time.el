@@ -15,7 +15,6 @@
   (when (= pyim--key-press-count 1)
     (setq typepad-init-time (current-time))
     (typepad-timer-func)
-    (message "typepad duration: %s" typepad-time-duration)
     (setq typepad-timer (run-with-idle-timer 0.1 t 'typepad-timer-func))))
 
 ;; start timer first
