@@ -62,7 +62,7 @@
       (erase-buffer)
       (insert readonly-text)
       (goto-char (point-min))
-      (setq buffer-read-only t)
+      ;; (setq buffer-read-only t)
       (read-only-mode 1)
       (switch-to-buffer readonly-buffer-name)
       ;; (org-switch-to-buffer-other-window readonly-buffer-name)
@@ -161,7 +161,7 @@
 ;; (require 'typepad-pyim)
 
 ;; key rate goal
-(defvar typepad-key-rate-goal 5.00
+(defvar typepad-key-rate-goal 4.00
   "The goal of key rate.")
 
 ;; whether or not use key rate goal
@@ -172,19 +172,40 @@
 (defvar typepad-char-num 20
   "Total char num in the readonly buffer.")
 
+;; redraw readonly buffer
+(defun typepad-redraw-readonly-buffer ()
+  (interactive)
+  (with-current-buffer readonly-buffer-name
+    (read-only-mode -1)
+    (erase-buffer)
+    (insert sending-text)
+    (read-only-mode 1)))
 
 
+;; `FIXME'
 (defun typepad-paragraph-end ()
   (let ((input-text (buffer-string))
          (last-char (char-before))
          (last-readonly (string-to-char (substring sending-text -1))))
     (if (and (equal typepad-char-num (string-width input-text))
           (equal last-char last-readonly))
+      (progn
+        (message "击键: %3f 码长: %3f" typepad-key-rate (typepad-calc-code-len))
       (if typepad-use-key-rate-goal
         (if (> typepad-key-rate typepad-key-rate-goal)
+          (progn
+            (typepad-diff)
+            (erase-buffer)
+            (other-window 1)
+            )
+          (progn
+            (erase-buffer)
+            (random-sending-text)
+            (typepad-redraw-readonly-buffer)
+            ))
+        (progn
           (other-window 1)
-          (erase-buffer))
-        (other-window 1))
+          (erase-buffer))))
       )))
 
 
