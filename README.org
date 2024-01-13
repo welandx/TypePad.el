@@ -1,21 +1,27 @@
 * 跟打器
-** 实现方式？
-
-- 发文 buffer，跟打 buffer
-
-- 只通过 pyim 或 emacs-rime ？
-
-- 比较两个 buffer 的内容？
-
-- 用 overlay 突出显示正、误
-
 ** todolist 
 - [X] 创建 buffer
 - [X] 统计 pyim 的输入次数
+  - [X] 测试 huma_pyim 的输入次数
+    - 顶屏的时候会多计一次
+    - 暂时解决了形码自动上屏的问题
 - [ ] diff highlight
 - [ ] emacs-rime?
-- [ ] 排除中文标点
 - [ ] 键法数据, 码长
-- [ ] 结束统计 trigger
+- [ ] 结束统计
 - [ ] 载文, 发文
+** design
+*** diff
+触发时间: input & delete, or buffer-changed
 
+首先删除所有 overlay;
+
+每次从 buffer 第一个字符开始, 直到到达跟打区未尾;
+
+取 point 和 char-at-point, 比较相同位置的发文区字符;
+
+相同则创建 same-overlay, 否则 diff-overlay.
+*** 结束条件
+1. buffer 字符数量与发文区相同了, 且最后一个字符相同, 结束
+2. 到数量相同时, 最后一个字符不同, 不结束
+   1. 此时继续输入, 字符数量超过发文区, 结束

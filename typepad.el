@@ -64,10 +64,10 @@
 ;; define the face for diff highlight
 (defface typepad-delete-face
   '((t (:background "red")))
-  "Face for delete text in diff.")
+  "Face for different text.")
 (defface typepad-insert-face
   '((t (:background "green")))
-  "Face for insert text in diff.")
+  "Face for same text.")
 
 
 

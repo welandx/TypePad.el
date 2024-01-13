@@ -53,7 +53,7 @@
 
 ;; hook to typepad-mode
 (add-hook 'typepad-mode-hook #'pyim--key-press-count-display)
-(add-hook 'post-self-insert-hook #'pyim--key-press-count-message)
+;; (add-hook 'post-self-insert-hook #'pyim--key-press-count-message)
 
 ;; clear pyim--key-press-count when pyim-process-terminate
 (defun pyim--key-press-count-clear ()
@@ -66,5 +66,25 @@
   "Clear `pyim--key-press-count' when buffer begin."
   (when (= (point) (point-min))
     (setq pyim--key-press-count 0)))
+
+(defun pyim-autoselector--xingma (split-length entered candidates last-candidates)
+  "`pyim-autoselector-xingma' 内部使用的函数。"
+  (cond
+   ((and (= (length entered) split-length)
+         (= (length candidates) 1)
+         ;; 如果没有候选词，pyim 默认将用户输入当做候选词，这时不能自动上屏，
+         ;; 因为这种情况往往是用户输入有误，自动上屏之后，调整输入就变得麻烦了。
+         (not (equal entered (car candidates))))
+    '(:select current))
+   ((and (> (length entered) split-length)
+         (equal (substring entered 0 split-length)
+                (car last-candidates)))
+    ;; 自动清除错误输入模式，类似微软五笔：敲第五个字母的时候，前面四个字母自
+    ;; 动清除。
+    '(:select last :replace-with ""))
+    ((> (length entered) split-length)
+      '((:select last)
+         (setq pyim--key-press-count (- pyim--key-press-count 1))))
+   (t nil)))
 
 (add-hook 'post-command-hook #'pyim--key-press-count-clear-when-buffer-beg)
