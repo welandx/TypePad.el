@@ -26,6 +26,23 @@
 (defvar sending-text "不者时今青任尽代形机"
   "The char read from readonly buffer.")
 
+;; copy from purcell https://gist.github.com/purcell/34824f1b676e6188540cdf71c7cc9fc4
+(defun key-quiz--shuffle-list (list)
+  "Shuffles LIST randomly, modying it in-place."
+  (dolist (i (reverse (number-sequence 1 (1- (length list)))))
+    (let ((j (random (1+ i)))
+	  (tmp (elt list i)))
+      (setf (elt list i) (elt list j))
+      (setf (elt list j) tmp)))
+  list)
+
+(defun random-sending-text ()
+  (interactive)
+  (let ((sending-text-list (split-string sending-text "")))
+    (key-quiz--shuffle-list sending-text-list)
+    (setq sending-text (mapconcat 'identity sending-text-list ""))
+    ))
+
 (defun typepad-create-window ()
   "Create two windows, one for readonly text, one for writable text."
   (interactive)
