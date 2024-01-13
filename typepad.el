@@ -17,13 +17,21 @@
   (setq-local cursor-type nil)
   (setq-local cursor-in-non-selected-windows nil))
 
+(defvar readonly-buffer-name "*发文区*"
+  "The name of readonly buffer.")
+
+(defvar writable-buffer-name "*跟打区*"
+  "The name of writable buffer.")
+
+(defvar sending-text "不者时今青任尽代形机"
+  "The char read from readonly buffer.")
+
 (defun typepad-create-window ()
   "Create two windows, one for readonly text, one for writable text."
   (interactive)
   (delete-other-windows)
-  (let ((readonly-buffer-name "*发文区*")
-      (writable-buffer-name "*跟打区*")
-         (readonly-text "不者时今青任尽代形机"))
+  (let (
+         (readonly-text sending-text))
     ;; delete same name buffer before create))
     (when (get-buffer readonly-buffer-name)
       (kill-buffer readonly-buffer-name))
@@ -83,13 +91,14 @@
       (while (not (eobp))
         (setq count (1+ count))
         (forward-char)))
-    'count))
+    (message "count: %s" count)
+    count))
 
 ;; def overlay for diff highlight
 (defun typepad-diff ()
   (interactive)
   (let ((readonly-buffer-name "*发文区*")
-         (writable-buffer-name "*跟打区*"))
+        )
     (with-current-buffer writable-buffer-name
       (save-excursion
         (goto-char (point-min))
@@ -133,3 +142,43 @@
 (add-hook 'typepad-readonly-mode-hook 'visual-fill-column-mode)
 
 ;; (require 'typepad-pyim)
+
+;; key rate goal
+(defvar typepad-key-rate-goal 5.00
+  "The goal of key rate.")
+
+;; whether or not use key rate goal
+(defvar typepad-use-key-rate-goal t
+  "Whether or not use key rate goal.")
+
+;; total char num in the readonly buffer
+(defvar typepad-char-num 20
+  "Total char num in the readonly buffer.")
+
+
+
+(defun typepad-paragraph-end ()
+  (let ((input-text (buffer-string))
+         (last-char (char-before))
+         (last-readonly (string-to-char (substring sending-text -1))))
+    (if (and (equal typepad-char-num (string-width input-text))
+          (equal last-char last-readonly))
+      (if typepad-use-key-rate-goal
+        (if (> typepad-key-rate typepad-key-rate-goal)
+          (other-window 1)
+          (erase-buffer))
+        (other-window 1))
+      )))
+
+
+;; hook to typepad-mode
+(add-hook 'typepad-mode-hook
+          (lambda ()
+            (add-hook 'post-self-insert-hook 'typepad-paragraph-end)))
+
+
+(setq-default company-global-modes '(not typepad-mode))
+
+(add-hook 'typepad-mode-hook
+  (lambda () (company-mode -1)))
+

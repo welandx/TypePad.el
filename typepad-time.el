@@ -18,6 +18,9 @@
     (message "typepad duration: %s" typepad-time-duration)
     (setq typepad-timer (run-with-idle-timer 0.1 t 'typepad-timer-func))))
 
+;; start timer first
+(add-hook 'typepad-mode-hook 'typepad-start-timer)
+
 ;; (add-hook 'pre-command-hook 'typepad-start-timer)
 ;; (remove-hook 'pre-command-hook 'typepad-start-timer)
 ;; (remove-hook 'post-command-hook 'typepad-start-timer)
@@ -46,4 +49,6 @@
     ;; kill timer
     (cancel-timer typepad-timer)))
 
-(add-hook 'post-command-hook 'typepad-time-clear)
+(add-hook 'typepad-mode-hook
+  (lambda ()
+    (add-hook 'post-self-insert-hook 'typepad-time-clear)))
