@@ -5,24 +5,32 @@
   - [X] 测试 huma_pyim 的输入次数
     - 顶屏的时候会多计一次
     - 暂时解决了形码自动上屏的问题
-- [ ] diff highlight
+- [X] diff highlight
 - [ ] emacs-rime?
-- [ ] 键法数据, 码长
+- [X] 击键数据, 码长
+  - [X] 计时器
 - [ ] 结束统计
 - [ ] 载文, 发文
-- [ ] 纵向分屏
+- [X] 纵向分屏
+- [X] 优化 UI
 ** design
 *** diff
-触发时间: input & delete, or buffer-changed
+触发时间：input & delete，or buffer-changed
 
-首先删除所有 overlay;
+首先删除所有 overlay；
 
-每次从 buffer 第一个字符开始, 直到到达跟打区未尾;
+每次从 buffer 第一个字符开始，直到到达跟打区未尾；
 
-取 point 和 char-at-point, 比较相同位置的发文区字符;
+取 point 和 char-at-point，比较相同位置的发文区字符；
 
-相同则创建 same-overlay, 否则 diff-overlay.
+相同则创建 same-overlay，否则 diff-overlay。
 *** 结束条件
-1. buffer 字符数量与发文区相同了, 且最后一个字符相同, 结束
-2. 到数量相同时, 最后一个字符不同, 不结束
-   1. 此时继续输入, 字符数量超过发文区, 结束
+1. buffer 字符数量与发文区相同了，且最后一个字符相同，结束
+2. 到数量相同时，最后一个字符不同，不结束
+   1. 此时继续输入，字符数量超过发文区，结束
+*** 计时器
+两种方法
+1. 第一次 type 时，启动一个 timer，每0.1s计录一次当前的时间
+2. 每一次 type 时，计录一次时间
+
+目前用的第一种，对现在显示方式两者没什么区别

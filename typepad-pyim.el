@@ -4,6 +4,11 @@
 (defun pyim-count-key (orig-fun &rest args)
   "conunt key press times."
   (setq pyim--key-press-count (1+ pyim--key-press-count))
+  (when (= pyim--key-press-count 1)
+    (setq typepad-init-time (current-time))
+    (typepad-timer-func)
+    (message "typepad duration: %s" typepad-time-duration)
+    (setq typepad-timer (run-with-idle-timer 0.1 t 'typepad-timer-func)))
   (apply orig-fun args))
 
 (advice-add 'pyim-self-insert-command :around #'pyim-count-key)
@@ -37,7 +42,6 @@
       (setq pyim--key-press-count (+ pyim--key-press-count 1)))))
 
 (add-hook 'post-command-hook #'pyim--key-press-count-clear-when-letter)
-;;; dedededfdjaffdededededdededededdededededede
 ;; just message pyim--key-press-count when post-self-insert-hook
 (defun pyim--key-press-count-message ()
   "Message `pyim--key-press-count' when `post-self-insert-hook'."
