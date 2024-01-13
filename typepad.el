@@ -220,3 +220,27 @@
 (add-hook 'typepad-mode-hook
   (lambda () (company-mode -1)))
 
+
+;; 计算码长
+(defvar typepad-code-len 0
+  "The code length of user input.")
+
+(defun typepad-calc-code-len ()
+  (setq typepad-code-len
+    (/ (float pyim--key-press-count)
+      (/ typepad-char-num 2.000)))
+  typepad-code-len)
+
+
+(defvar typepad-short nil
+  "short text.")
+
+;; load short text from file top500.txt as string and split it to list every 20 char
+(defun typepad-load-short-text ()
+  (interactive)
+  (let ((short-text (with-temp-buffer
+                      (insert-file-contents "/home/weland/.emacs.d/site-lisp/TypePad/top500.txt")
+                      (buffer-string))))
+    (setq typepad-short (split-string-every short-text 10))))
+
+
