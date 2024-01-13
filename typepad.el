@@ -62,54 +62,63 @@
 ;;             (add-hook 'post-command-hook 'typepad-count-key nil t)))
 
 ;; define the face for diff highlight
-(defface typepad-delete-face
+(defface typepad-diff-face
   '((t (:background "red")))
   "Face for different text.")
-(defface typepad-insert-face
+(defface typepad-same-face
   '((t (:background "green")))
   "Face for same text.")
 
-
-
-;; define diff-string function
-(defun diff-string (str1 str2)
-  "Return a list of diff between str1 and str2."
-  (let ((diff (compare-list
-                (split-string str1 "")
-                (split-string str2 "")
-                )))
-    (dolist (item diff)
-      (let ((type (car (cdr item))))
-        (when (not (eq type ?=))
-          (setcar (cdr item) (car item))
-          (setcar item (car (cdr item))))))
-    diff))
-
-;; use overlay to highlight diff of the two buffer
-(defun typepad-highlight-diff ()
+;; total char num in the readonly buffer
+(defun typepad-count-char ()
   (interactive)
-  (let ((writable-buffer (get-buffer "*跟打区*"))
-        (readonly-buffer (get-buffer "*发文区*")))
-    (when (and writable-buffer readonly-buffer)
-      (let ((writable-buffer-text (buffer-substring-no-properties
-                                   (point-min) (point-max)))
-            (readonly-buffer-text (with-current-buffer readonly-buffer
-                                    (buffer-substring-no-properties
-                                     (point-min) (point-max)))))
-        (when (not (string= writable-buffer-text readonly-buffer-text))
-          (let ((diff (diff-string writable-buffer-text readonly-buffer-text)))
-            (with-current-buffer writable-buffer
-              (remove-overlays (point-min) (point-max) 'typepad t)
-              (dolist (item diff)
-                (let ((start (car item))
-                      (end (car (cdr item)))
-                      (type (car (cdr (cdr item)))))
-                  (overlay-put (make-overlay start end) 'typepad t)
-                  (overlay-put (make-overlay start end) 'face
-                               (cond ((eq type ?-) 'typepad-delete-face)
-                                 ((eq type ?+) 'typepad-insert-face))))))))))))
+  (let ((count 0))
+    (save-excursion
+      (goto-char (point-min))
+      (while (not (eobp))
+        (setq count (1+ count))
+        (forward-char)))
+    'count))
 
-;; do the highlight when the writable buffer changed
-;; (add-hook 'typepad-mode-hook
-;;           (lambda ()
-;;             (add-hook 'post-command-hook 'typepad-highlight-diff nil t)))
+;; def overlay for diff highlight
+(defun typepad-diff ()
+  (interactive)
+  (let ((readonly-buffer-name "*发文区*")
+        (writable-buffer-name "*跟打区*"))
+    (with-current-buffer writable-buffer-name
+      (save-excursion
+        (goto-char (point-min))
+        (let (
+               (writable-char-list (split-string (buffer-substring-no-properties (point-min) (point-max)) "" t))
+               (diff-range (point-max))) ;; char-after return nil if at the end of buffer
+          (with-current-buffer readonly-buffer-name
+            (save-excursion ;; save-excursion restore the point after execute the code
+              ;; clear all overlay
+              (remove-overlays)
+              (goto-char (point-min))
+              (let ((readonly-char (char-after)))
+                (cl-loop for writable-char in writable-char-list
+                  do (progn
+                       ;; convert writable-char to ASCII
+                        (setq writable-char (string-to-char writable-char))
+                       ;; (setq diff-range (min diff-range (point)))
+                       ;; (while (and (and writable-char readonly-char)
+                       ;;          (< (point) diff-range))
+                         ;; debug message
+                         (message "writable-char: %s, readonly-char: %s" writable-char readonly-char)
+                         (if (not (equal writable-char readonly-char)) ;; compare char
+                           ;; make overlay for different char
+                           (let ((overlay (make-overlay (point) (1+ (point)))))
+                             (overlay-put overlay 'face 'typepad-diff-face))
+                           (let ((overlay (make-overlay (point) (1+ (point)))))
+                             (overlay-put overlay 'face 'typepad-same-face)))
+                       (forward-char)
+                         (setq readonly-char (char-after))
+                       )
+                  until (eobp))))))))))
+
+
+;; when the writable buffer change, compare it with readonly buffer
+(add-hook 'typepad-mode-hook
+          (lambda ()
+            (add-hook 'post-command-hook 'typepad-diff nil t)))

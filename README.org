@@ -10,6 +10,7 @@
 - [ ] 键法数据, 码长
 - [ ] 结束统计
 - [ ] 载文, 发文
+- [ ] 纵向分屏
 ** design
 *** diff
 触发时间: input & delete, or buffer-changed
