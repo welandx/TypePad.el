@@ -1,14 +1,22 @@
 ;; init pyim--key-press-count
 (defvar pyim--key-press-count 0)
+
+(defvar tp-pyim-delete 0)
+
 ;; advice pyim-self-insert-command, 用来计数每一次按键
 (defun pyim-count-key (orig-fun &rest args)
-  "conunt key press times."
+  "count key press times."
   (setq pyim--key-press-count (1+ pyim--key-press-count))
   (when (= pyim--key-press-count 1)
     (setq typepad-init-time (current-time))
     (typepad-timer-func)
     (message "typepad duration: %s" typepad-time-duration)
     (setq typepad-timer (run-with-idle-timer 0.1 t 'typepad-timer-func)))
+  (apply orig-fun args))
+
+(defun tp-record-del (orig-fun &rest args)
+  "count del"
+  (setq tp-pyim-delete (1+ tp-pyim-delete))
   (apply orig-fun args))
 
 (advice-add 'pyim-self-insert-command :around #'pyim-count-key)
@@ -18,13 +26,16 @@
 (advice-add 'pyim-select-word-by-number :around #'pyim-count-key)
 ;; advice pyim-delete-backward-char
 (advice-add 'pyim-delete-backward-char :around #'pyim-count-key)
+(advice-add 'pyim-delete-backward-char :around #'tp-record-del)
+
 ;; pyim-delete-forward-char
 (advice-add 'pyim-delete-forward-char :around #'pyim-count-key)
 
 ;; when key DEL press, count
 (defun pyim--key-press-count-clear-when-del ()
-  "Clear `pyim--key-press-count' when key DEL press."
+  "`pyim--key-press-count' when key DEL press."
   (when (eq last-command-event ?\d)
+    (setq tp-pyim-delete (1+ tp-pyim-delete))
     (setq pyim--key-press-count (+ pyim--key-press-count 1))))
 
 (add-hook 'pre-command-hook #'pyim--key-press-count-clear-when-del)

@@ -180,7 +180,10 @@
     (if (and (equal typepad-char-num (string-width input-text))
           (equal last-char last-readonly))
       (progn
-        (message "击键: %3f 码长: %3f" typepad-key-rate (typepad-calc-code-len))
+        (message "键准: %.3f 击键: %.3f 码长: %.3f"
+          (typepad-calc-key-acc)
+          typepad-key-rate
+          (typepad-calc-code-len))
       (if typepad-use-key-rate-goal
         (if (> typepad-key-rate typepad-key-rate-goal)
           (progn
@@ -221,18 +224,34 @@
       (/ typepad-char-num 2.000)))
   typepad-code-len)
 
+(defvar typepad-key-acc nil)
+
+(defun typepad-calc-key-acc ()
+  (setq typepad-key-acc
+    (/ (float tp-pyim-delete)
+      (float pyim--key-press-count)))
+  typepad-key-acc)
+
 (defvar typepad-short nil
   "short text.")
+
+(defvar typepad-text-path nil
+  "path to text")
+
+(defvar typepad-split-size 10
+  "每n个字符分隔一次")
 
 ;; load short text from file top500.txt as string and split it to list every 20 char
 (defun typepad-load-short-text ()
   (interactive)
-  (let ((short-text (with-temp-buffer
-                      (insert-file-contents "/home/weland/.emacs.d/site-lisp/TypePad/top500.txt")
-                      (buffer-string))))
-    (setq typepad-short (split-string-every short-text 10))
-    (setq typepad-total-paragraph (length typepad-short))
-    (typepad-send-text)))
+  (if typepad-text-path
+    (let ((short-text (with-temp-buffer
+                        (insert-file-contents typepad-text-path)
+                        (buffer-string))))
+      (setq typepad-short (split-string-every short-text typepad-split-size))
+      (setq typepad-total-paragraph (length typepad-short))
+      (typepad-send-text))
+    (message "未设置 typepad-text-path")))
 
 
 (defvar typepad-total-paragraph 1
