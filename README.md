@@ -1,6 +1,8 @@
 # TypePad.el
 Emacs 内的跟打器，目前处于开发中，可以进行简单的测试
 ## 使用
+~~现在的typepad-pyim.el依赖pyim，且不会自动处理依赖~~
+
 git clone TypePad 到本地，然后：
 
 ```emacs-lisp
@@ -24,7 +26,7 @@ git clone TypePad 到本地，然后：
 - [X] 纵向分屏
 - [X] 优化 UI
 - [ ] 存储数据, 分析报告
-- [-] 随机发文
+- [ ] 随机发文
   - [X] 随机已发内容
   - [ ] 随机全文
 - [ ] hook buffer local
@@ -32,6 +34,9 @@ git clone TypePad 到本地，然后：
 - [ ] 键准数据
 
 ## 演示
+设置了击键目标为4，第一段为击键达标跳转到发文区，调用 `typepad-send-next` 发下一段
+第二段打没有达到击键目标，直接在跟打区清空了buffer
 
 https://github.com/welandx/TypePad/assets/59045899/3f8be5e5-deb4-4319-b096-51b7013dfa88
 
+演示中使用的输入法为 [huma-pyim](https://github.com/Neikice/huma_pyim)
