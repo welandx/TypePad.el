@@ -144,12 +144,6 @@
           (lambda ()
             (add-hook 'post-command-hook 'typepad-diff nil t)))
 
-;; enable visual-fill-column-mode in typepad-mode and typepad-readonly-mode
-(add-hook 'typepad-mode-hook 'visual-fill-column-mode)
-(add-hook 'typepad-readonly-mode-hook 'visual-fill-column-mode)
-
-;; (require 'typepad-pyim)
-
 ;; key rate goal
 (defvar typepad-key-rate-goal 4.00
   "The goal of key rate.")
