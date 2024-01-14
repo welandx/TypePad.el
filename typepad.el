@@ -257,6 +257,15 @@
         (typepad-send-text)
         ))))
 
+(defun typepad-send-prev ()
+  (interactive)
+  (let ((current typepad-current-paragraph))
+    (if (eq current 1)
+      (message "当前已是第一段")
+      (progn
+        (setq typepad-current-paragraph (1- current))
+        (typepad-send-text)
+        ))))
 
 ;; load other modules
 (require 'typepad-pyim)
