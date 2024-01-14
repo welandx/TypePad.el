@@ -32,3 +32,6 @@ git clone TypePad 到本地，然后：
 - [ ] 键准数据
 
 ## 演示
+
+https://github.com/welandx/TypePad/assets/59045899/3f8be5e5-deb4-4319-b096-51b7013dfa88
+
