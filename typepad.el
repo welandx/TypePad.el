@@ -101,42 +101,33 @@
     (message "count: %s" count)
     count))
 
-;; def overlay for diff highlight
+;; `FIXME' def overlay for diff highlight
 (defun typepad-diff ()
   (interactive)
-  (let ((readonly-buffer-name "*发文区*")
-        )
-    (with-current-buffer writable-buffer-name
-      (save-excursion
-        (goto-char (point-min))
-        (let (
-               (writable-char-list (split-string (buffer-substring-no-properties (point-min) (point-max)) "" t))
-               (diff-range (point-max))) ;; char-after return nil if at the end of buffer
-          (with-current-buffer readonly-buffer-name
-            (save-excursion ;; save-excursion restore the point after execute the code
-              ;; clear all overlay
-              (remove-overlays)
-              (goto-char (point-min))
-              (let ((readonly-char (char-after)))
-                (cl-loop for writable-char in writable-char-list
-                  do (progn
-                       ;; convert writable-char to ASCII
-                       (setq writable-char (string-to-char writable-char))
-                       ;; (setq diff-range (min diff-range (point)))
-                       ;; (while (and (and writable-char readonly-char)
-                       ;;          (< (point) diff-range))
-                       ;; debug message
-                       ;; (message "writable-char: %s, readonly-char: %s" writable-char readonly-char)
-                       (if (not (equal writable-char readonly-char)) ;; compare char
-                         ;; make overlay for different char
-                         (let ((overlay (make-overlay (point) (1+ (point)))))
-                           (overlay-put overlay 'face 'typepad-diff-face))
-                         (let ((overlay (make-overlay (point) (1+ (point)))))
-                           (overlay-put overlay 'face 'typepad-same-face)))
-                       (forward-char)
-                       (setq readonly-char (char-after))
-                       )
-                  until (eobp))))))))))
+  (with-current-buffer writable-buffer-name
+    (save-excursion
+      (goto-char (point-min))
+      (let ((input-list (split-string
+                          (buffer-substring-no-properties
+                            (point-min) (point-max)) "" t))
+             (diff-range (point-max))) ;; `ISSUE' why?
+        (with-current-buffer readonly-buffer-name
+          (save-excursion
+            (remove-overlays)
+            (goto-char (point-min))
+            (let ((readonly-char (char-after)))
+              (cl-loop for writable-char in input-list
+                do (progn
+                     ;; convert writable-char to ASCII
+                     (setq writable-char (string-to-char writable-char))
+                     (if (not (equal writable-char readonly-char)) ;; compare char
+                       (let ((overlay (make-overlay (point) (1+ (point)))))
+                         (overlay-put overlay 'face 'typepad-diff-face))
+                       (let ((overlay (make-overlay (point) (1+ (point)))))
+                         (overlay-put overlay 'face 'typepad-same-face)))
+                     (forward-char)
+                     (setq readonly-char (char-after)))
+                until (eobp)))))))))
 
 
 ;; when the writable buffer change, compare it with readonly buffer
