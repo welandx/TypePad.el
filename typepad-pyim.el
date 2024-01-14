@@ -10,7 +10,6 @@
   (when (= pyim--key-press-count 1)
     (setq typepad-init-time (current-time))
     (typepad-timer-func)
-    (message "typepad duration: %s" typepad-time-duration)
     (setq typepad-timer (run-with-idle-timer 0.1 t 'typepad-timer-func)))
   (apply orig-fun args))
 
@@ -41,8 +40,8 @@
 (add-hook 'pre-command-hook #'pyim--key-press-count-clear-when-del)
 
 ;; when key 'a-z' or 'A-Z' press, count
-(defun pyim--key-press-count-clear-when-letter ()
-  "Clear `pyim--key-press-count' when key 'a-z' or 'A-Z' press."
+(defun pyim--key-press-count-letter ()
+  "`pyim--key-press-count' when key 'a-z' or 'A-Z' press."
   ;; at first, last-command-event should be a number or marker
   (when (number-or-marker-p last-command-event)
     (when (and (>= last-command-event ?A)
@@ -52,7 +51,7 @@
             (<= last-command-event ?z))
       (setq pyim--key-press-count (+ pyim--key-press-count 1)))))
 
-(add-hook 'post-command-hook #'pyim--key-press-count-clear-when-letter)
+(add-hook 'post-command-hook #'pyim--key-press-count-letter)
 ;; just message pyim--key-press-count when post-self-insert-hook
 (defun pyim--key-press-count-message ()
   "Message `pyim--key-press-count' when `post-self-insert-hook'."
@@ -76,11 +75,6 @@
   "Clear `pyim--key-press-count' when `pyim-process-terminate'."
   (setq pyim--key-press-count 0))
 (setq-default pyim-punctuation-translate-p '(no yes auto))
-;; 当光标位于 buffer 的开头时, 清除 pyim--key-press-count
-(defun pyim--key-press-count-clear-when-buffer-beg ()
-  "Clear `pyim--key-press-count' when buffer begin."
-  (when (= (point) (point-min))
-    (setq pyim--key-press-count 0)))
 
 (defun pyim-autoselector--xingma (split-length entered candidates last-candidates)
   "`pyim-autoselector-xingma' 内部使用的函数。"
@@ -101,6 +95,13 @@
       '((:select last)
          (setq pyim--key-press-count (- pyim--key-press-count 1))))
    (t nil)))
+
+;; 当光标位于 buffer 的开头时, 清除 pyim--key-press-count
+(defun pyim--key-press-count-clear-when-buffer-beg ()
+  "Clear `pyim--key-press-count' when buffer begin."
+  (when (= (point) (point-min))
+    (setq tp-pyim-delete 0) ;; clear del
+    (setq pyim--key-press-count 0)))
 
 (add-hook 'post-command-hook #'pyim--key-press-count-clear-when-buffer-beg)
 
