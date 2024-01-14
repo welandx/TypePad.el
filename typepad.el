@@ -139,13 +139,28 @@
 (defvar typepad-key-rate-goal 4.00
   "The goal of key rate.")
 
+(defvar typepad-key-acc-goal 1
+  "The goal of key acc")
+
 ;; whether or not use key rate goal
 (defvar typepad-use-key-rate-goal t
   "Whether or not use key rate goal.")
 
+(defvar typepad-use-key-acc-goal t
+  "Whether or not use key acc goal.")
+
 ;; total char num in the readonly buffer
 (defvar typepad-char-num 20
   "Total char num in the readonly buffer.")
+
+(defun check-standards (use-acc use-rate acc rate)
+  (let ((acc-passed t)
+        (rate-passed t))
+    (when use-acc
+      (setq acc-passed (= typepad-key-acc 1)))
+    (when use-rate
+      (setq rate-passed (> typepad-key-rate typepad-key-rate-goal)))
+    (and acc-passed rate-passed)))
 
 ;; redraw readonly buffer
 (defun typepad-redraw-readonly-buffer ()
@@ -156,7 +171,6 @@
     (insert sending-text)
     (read-only-mode 1)))
 
-
 ;; `FIXME'
 (defun typepad-paragraph-end ()
   (let ((input-text (buffer-string))
@@ -165,27 +179,23 @@
     (if (and (equal typepad-char-num (string-width input-text))
           (equal last-char last-readonly))
       (progn
-        (message "速度: %.2f 键准: %.3f 击键: %.3f 码长: %.3f"
+        (message "速度: %.2f 键准: %.2f%% 击键: %.3f 码长: %.3f"
           typepad-speed
-          (typepad-calc-key-acc)
+          (* (typepad-calc-key-acc) 100)
           typepad-key-rate
           (typepad-calc-code-len))
-      (if typepad-use-key-rate-goal
-        (if (> typepad-key-rate typepad-key-rate-goal)
-          (progn
-            (typepad-diff)
-            (erase-buffer)
-            (other-window 1)
-            )
-          (progn
-            (erase-buffer)
-            (random-sending-text)
-            (typepad-redraw-readonly-buffer)
-            ))
-        (progn
-          (other-window 1)
-          (erase-buffer))))
-      )))
+        (if (check-standards typepad-use-key-acc-goal
+              typepad-use-key-rate-goal
+              typepad-key-acc-goal typepad-key-rate-goal)
+            (progn
+              (typepad-diff)
+              (erase-buffer)
+              (other-window 1))
+            (progn
+              (erase-buffer)
+              (random-sending-text)
+              (typepad-redraw-readonly-buffer)))
+        ))))
 
 
 ;; hook to typepad-mode
