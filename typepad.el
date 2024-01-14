@@ -165,7 +165,8 @@
     (if (and (equal typepad-char-num (string-width input-text))
           (equal last-char last-readonly))
       (progn
-        (message "键准: %.3f 击键: %.3f 码长: %.3f"
+        (message "速度: %.2f 键准: %.3f 击键: %.3f 码长: %.3f"
+          typepad-speed
           (typepad-calc-key-acc)
           typepad-key-rate
           (typepad-calc-code-len))

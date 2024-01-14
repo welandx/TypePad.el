@@ -10,6 +10,8 @@
 ;; defvar key-rate
 (defvar typepad-key-rate 'nil)
 
+(defvar typepad-speed 'nil)
+
 ;; start a timer when first typing in typepad, every 0.1 s
 (defun typepad-start-timer ()
   (when (= pyim--key-press-count 1)
@@ -20,15 +22,14 @@
 ;; start timer first
 (add-hook 'typepad-mode-hook 'typepad-start-timer)
 
-;; (add-hook 'pre-command-hook 'typepad-start-timer)
-;; (remove-hook 'pre-command-hook 'typepad-start-timer)
-;; (remove-hook 'post-command-hook 'typepad-start-timer)
 (defun typepad-timer-func ()
   (setq typepad-current-time (current-time))
   ;; time duration
   (setq typepad-time-duration (time-subtract typepad-current-time typepad-init-time))
-  ;; calc key rate
-  (setq typepad-key-rate (/ (float pyim--key-press-count) (float (time-to-seconds typepad-time-duration)))))
+  (let ((time (time-to-seconds typepad-time-duration))
+         (words (/ (string-width (buffer-string)) 2.00)))
+    (setq typepad-speed (* 60 (/ words time)))
+    (setq typepad-key-rate (/ (float pyim--key-press-count) time))))
 
 ;; display key rate in mode line
 (defun get-key-rate ()
@@ -45,6 +46,7 @@
     (setq typepad-current-time (current-time))
     (setq typepad-time-duration 0)
     (setq typepad-key-rate 0.0)
+    (setq typepad-speed 0)
     ;; kill timer
     (cancel-timer typepad-timer)))
 
