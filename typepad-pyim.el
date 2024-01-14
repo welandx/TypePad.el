@@ -92,3 +92,7 @@
    (t nil)))
 
 (add-hook 'post-command-hook #'pyim--key-press-count-clear-when-buffer-beg)
+
+
+;;; typepad-pyim.el end here
+(provide 'typepad-pyim)

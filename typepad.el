@@ -1,3 +1,4 @@
+(require 'typepad-lib)
 ;; define a mode for typepad writable buffer
 (define-derived-mode typepad-mode fundamental-mode
   "typepad"
@@ -5,8 +6,7 @@
   (setq-local cursor-type 'bar)
   (setq-local visual-fill-column-center-text t)
   ;; set font height local
-  (setq-local face-remapping-alist '((default (:height 280))))
-  )
+  (setq-local face-remapping-alist '((default (:height 280)))))
 
 ;; define a mode for typepad readonly buffer
 (define-derived-mode typepad-readonly-mode fundamental-mode
@@ -25,16 +25,6 @@
 
 (defvar sending-text "不者时今青任尽代形机"
   "The char read from readonly buffer.")
-
-;; copy from purcell https://gist.github.com/purcell/34824f1b676e6188540cdf71c7cc9fc4
-(defun key-quiz--shuffle-list (list)
-  "Shuffles LIST randomly, modying it in-place."
-  (dolist (i (reverse (number-sequence 1 (1- (length list)))))
-    (let ((j (random (1+ i)))
-	  (tmp (elt list i)))
-      (setf (elt list i) (elt list j))
-      (setf (elt list j) tmp)))
-  list)
 
 (defun random-sending-text ()
   (interactive)
@@ -231,7 +221,6 @@
       (/ typepad-char-num 2.000)))
   typepad-code-len)
 
-
 (defvar typepad-short nil
   "short text.")
 
@@ -241,6 +230,38 @@
   (let ((short-text (with-temp-buffer
                       (insert-file-contents "/home/weland/.emacs.d/site-lisp/TypePad/top500.txt")
                       (buffer-string))))
-    (setq typepad-short (split-string-every short-text 10))))
+    (setq typepad-short (split-string-every short-text 10))
+    (setq typepad-total-paragraph (length typepad-short))
+    (typepad-send-text)))
 
 
+(defvar typepad-total-paragraph 1
+  "当前发文的总段数")
+
+(defvar typepad-current-paragraph 1
+  "当前在发的段数")
+
+;; send text
+(defun typepad-send-text ()
+  (interactive)
+  (setq sending-text (nth (- typepad-current-paragraph 1) typepad-short))
+  (typepad-redraw-readonly-buffer))
+
+(defun typepad-send-next ()
+  (interactive)
+  (let ((current typepad-current-paragraph))
+    (if (<= typepad-total-paragraph current)
+      (message "当前已是最后一段")
+      (progn
+        (setq typepad-current-paragraph (1+ current))
+        (typepad-send-text)
+        ))))
+
+
+;; load other modules
+(require 'typepad-pyim)
+(require 'typepad-time)
+
+
+;;; typepad.el end here
+(provide 'typepad)

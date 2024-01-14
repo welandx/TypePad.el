@@ -51,3 +51,7 @@
 (add-hook 'typepad-mode-hook
   (lambda ()
     (add-hook 'post-self-insert-hook 'typepad-time-clear)))
+
+
+;;; typepad-time.el end here
+(provide 'typepad-time)

@@ -17,6 +17,9 @@
 - [-] 随机发文
   - [X] 随机已发内容
   - [ ] 随机全文
+- [ ] hook buffer local
+- [ ] 调整 hook 顺序
+- [ ] 键准数据
 ** design
 *** diff
 触发时间：input & delete，or buffer-changed
