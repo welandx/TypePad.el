@@ -59,7 +59,7 @@
       (typepad-readonly-mode)
       (other-window 1))))
 
-;; count the total key count in the writable buffer
+;; `DROP?' count the total key count in the writable buffer
 (defun typepad-count-key ()
   (interactive)
   (let ((count 0))
@@ -214,8 +214,8 @@
 
 (defun typepad-calc-key-acc ()
   (setq typepad-key-acc
-    (/ (float tp-pyim-delete)
-      (float pyim--key-press-count)))
+    (- 1 (/ (float tp-pyim-delete)
+      (float pyim--key-press-count))))
   typepad-key-acc)
 
 (defvar typepad-short nil

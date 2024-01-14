@@ -47,6 +47,7 @@
     (setq typepad-time-duration 0)
     (setq typepad-key-rate 0.0)
     (setq typepad-speed 0)
+    (setq tp-pyim-delete 0) ;; clear delete `FIXME' delete should be cleared when post-command
     ;; kill timer
     (cancel-timer typepad-timer)))
 
