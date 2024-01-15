@@ -185,18 +185,25 @@
     (if (and (equal typepad-char-num (string-width input-text))
           (equal last-char last-readonly))
       (progn
-        (message "速度: %.2f 键准: %.2f%% 击键: %.3f 码长: %.3f"
+        (message "第 %d 段 速度: %.2f 键准: %.2f%% 击键: %.3f 码长: %.3f [%s] %d/%d"
+          typepad-current-paragraph
           typepad-speed
           (* (typepad-calc-key-acc) 100)
           typepad-key-rate
-          (typepad-calc-code-len))
+          (typepad-calc-code-len)
+          typepad-name
+          typepad-current-paragraph
+          typepad-total-paragraph
+          )
         (if (check-standards typepad-use-key-acc-goal
               typepad-use-key-rate-goal
               typepad-key-acc-goal typepad-key-rate-goal)
             (progn
               (typepad-diff)
               (erase-buffer)
-              (other-window 1))
+              (if typepad-auto-next
+                (typepad-send-next)
+                (other-window 1)))
             (progn
               (erase-buffer)
               (random-sending-text)
