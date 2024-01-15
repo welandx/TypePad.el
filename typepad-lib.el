@@ -14,5 +14,17 @@
       (push (substring str (* i n) (min (+ (* i n) n) (length str))) result))
     (nreverse result)))
 
+(defun get-txt-file-details (directory)
+  (let ((file-details '()))
+    ;; 递归获取指定路径下所有文件以及子目录的文件名和路径
+    (dolist (file (directory-files-recursively directory ".*\\.txt\\'"))
+      ;; 如果获取到的是文件而不是目录
+      (when (file-regular-p file)
+        ;; 获取文件名
+        (let ((file-name (file-name-sans-extension (file-name-nondirectory file))))
+          ;; 将文件名和路径存入列表
+          (push (list file-name file) file-details))))
+    file-details))
+
 ;;; typepad-lib.el end here
 (provide 'typepad-lib)

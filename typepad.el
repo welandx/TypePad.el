@@ -33,6 +33,12 @@
     (setq sending-text (mapconcat 'identity sending-text-list ""))
     ))
 
+(defun random-all-text (txt)
+  (interactive)
+  (let ((txt-list (split-string txt "")))
+    (key-quiz--shuffle-list txt-list)
+    (setq typepad-short (mapconcat 'identity txt-list ""))))
+
 (defun typepad-create-window ()
   "Create two windows, one for readonly text, one for writable text."
   (interactive)
@@ -248,13 +254,33 @@
 (defun typepad-load-dir ()
   (interactive)
   (if typepad-text-path
-    (let ((short-text (with-temp-buffer
-                        (insert-file-contents typepad-text-path)
-                        (buffer-string))))
-      (setq typepad-short (split-string-every short-text typepad-split-size))
-      (setq typepad-total-paragraph (length typepad-short))
-      (typepad-send-text))
+    (setq typepad-article-list (get-txt-file-details typepad-text-path))
     (message "未设置 typepad-text-path")))
+
+(defun typepad-load-short-text (path)
+  (let ((short-text (with-temp-buffer
+                      (insert-file-contents path)
+                      (buffer-string))))
+    (if typepad-randomp
+      (setq short-text (random-all-text short-text)))
+    (setq typepad-short (split-string-every short-text typepad-split-size))
+    (setq typepad-total-paragraph (length typepad-short))
+    (typepad-send-text)))
+
+(defun tp-set-split (n)
+  (interactive)
+  (if (numberp n)
+    (setq typepad-split-size n)
+    (message "输入数字")))
+
+;; `FIXME'
+(defun typepad-load ()
+  (interactive)
+  (if typepad-article-list
+    (let ((article (completing-read "Choose an article: ")))
+      (setq typepad-name (car article))
+      (typepad-load-short-text (nth 1 article)))
+    (typepad-load-dir)))
 
 
 (defvar typepad-total-paragraph 1
