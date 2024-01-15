@@ -37,7 +37,10 @@
     (setq tp-pyim-delete (1+ tp-pyim-delete))
     (setq pyim--key-press-count (+ pyim--key-press-count 1))))
 
-(add-hook 'pre-command-hook #'pyim--key-press-count-clear-when-del nil t)
+(add-hook 'typepad-mode-hook
+  (lambda ()
+    (add-hook 'pre-command-hook #'pyim--key-press-count-clear-when-del nil t)))
+
 
 ;; when key 'a-z' or 'A-Z' press, count
 (defun pyim--key-press-count-letter ()
@@ -51,7 +54,10 @@
             (<= last-command-event ?z))
       (setq pyim--key-press-count (+ pyim--key-press-count 1)))))
 
-(add-hook 'post-command-hook #'pyim--key-press-count-letter nil t)
+(add-hook 'typepad-mode-hook
+  (lambda ()
+    (add-hook 'post-command-hook #'pyim--key-press-count-letter nil t)))
+
 ;; just message pyim--key-press-count when post-self-insert-hook
 (defun pyim--key-press-count-message ()
   "Message `pyim--key-press-count' when `post-self-insert-hook'."
@@ -103,7 +109,9 @@
     (setq tp-pyim-delete 0) ;; clear del
     (setq pyim--key-press-count 0)))
 
-(add-hook 'post-command-hook #'tp-pyim-clear-when-buffer-beg nil t)
+(add-hook 'typepad-mode-hook
+  (lambda ()
+    (add-hook 'post-command-hook #'tp-pyim-clear-when-buffer-beg nil t)))
 
 
 ;;; typepad-pyim.el end here

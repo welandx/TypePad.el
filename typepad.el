@@ -237,8 +237,15 @@
 (defvar typepad-split-size 10
   "每n个字符分隔一次")
 
-;; load short text from file top500.txt as string and split it to list every 20 char
-(defun typepad-load-short-text ()
+(defvar typepad-randomp t
+  "是否乱序全文")
+
+(defvar typepad-name "example"
+  "当前发文的文章名")
+
+(defvar typepad-article-list nil)
+
+(defun typepad-load-dir ()
   (interactive)
   (if typepad-text-path
     (let ((short-text (with-temp-buffer
