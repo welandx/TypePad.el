@@ -267,11 +267,13 @@
     (setq typepad-total-paragraph (length typepad-short))
     (typepad-send-text)))
 
-(defun tp-set-split (n)
+(defun tp-set-split ()
   (interactive)
-  (if (numberp n)
-    (setq typepad-split-size n)
-    (message "输入数字")))
+  (setq default-slice '(10 100))
+  (let ((n (string-to-number (completing-read "输入单段字数: " default-slice))))
+    (if (number-or-marker-p n)
+      (setq typepad-split-size n)
+      (message "输入数字"))))
 
 ;; `FIXME'
 (defun typepad-load ()
