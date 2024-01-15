@@ -175,6 +175,7 @@
     (read-only-mode -1)
     (erase-buffer)
     (insert sending-text)
+    (setq typepad-char-num (string-width (buffer-string)))
     (read-only-mode 1)))
 
 ;; `FIXME'
@@ -252,6 +253,17 @@
 
 (defvar typepad-randomp t
   "是否乱序全文")
+
+(defvar typepad-auto-next nil)
+
+(defun tp-load-long ()
+  (interactive)
+  (setq typepad-auto-next t)
+  (setq typepad-split-size 100)
+  (setq typepad-use-key-acc-goal nil)
+  (setq typepad-use-key-rate-goal nil)
+  (setq typepad-randomp nil))
+
 
 (defvar typepad-name "example"
   "当前发文的文章名")
