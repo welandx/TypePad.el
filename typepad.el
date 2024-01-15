@@ -288,11 +288,8 @@
 
 (defun tp-set-split ()
   (interactive)
-  (setq default-slice '(10 100))
-  (let ((n (string-to-number (completing-read "输入单段字数: " default-slice))))
-    (if (number-or-marker-p n)
-      (setq typepad-split-size n)
-      (message "输入数字"))))
+  (let ((n (read-number "请输入每段字数: ")))
+    (setq typepad-split-size n)))
 
 ;; `FIXME'
 (defun typepad-load ()
@@ -335,6 +332,23 @@
         (setq typepad-current-paragraph (1- current))
         (typepad-send-text)
         ))))
+
+(defun typepad-send-nth ()
+  (interactive)
+  (let ((number (read-number "请输入段数: ")))
+    (setq typepad-current-paragraph number)
+    (typepad-send-text)))
+
+(defvar typepad-current-hash nil)
+
+(defun typepad-hash ()
+  (interactive)
+  (let* ((current-time (current-time))
+          (timestamp (format-time-string "%Y-%m-%d %H:%M:%S" current-time))
+          (num (number-to-string typepad-current-paragraph))
+          (input (concat typepad-name num timestamp))
+          (hash (secure-hash 'sha256 input)))
+    (setq typepad-current-hash (format "%s" hash))))
 
 ;; load other modules
 (require 'typepad-pyim)
