@@ -14,6 +14,7 @@
       (push (substring str (* i n) (min (+ (* i n) n) (length str))) result))
     (nreverse result)))
 
+;; `FIXME'
 (defun get-txt-file-details (directory)
   (let ((file-details '()))
     ;; 递归获取指定路径下所有文件以及子目录的文件名和路径
@@ -26,5 +27,22 @@
           (push (list file-name file) file-details))))
     file-details))
 
+;; modify from https://howardism.org/Technical/Emacs/alt-completing-read.html
+(defun alt-completing-read (prompt collection &optional predicate require-match initial-input hist def inherit-input-method)
+  "Calls `completing-read' but returns the list from COLLECTION."
+
+  ;; Yes, Emacs really should have an `alistp' predicate to make this code more readable:
+  (cl-flet ((assoc-list-p (obj) (and (listp obj) (consp (car obj)))))
+
+    (let* ((choice
+            (completing-read prompt collection predicate require-match initial-input hist def inherit-input-method))
+           (results (cond
+                     ((hash-table-p collection) (gethash choice collection))
+                     ((assoc-list-p collection) (alist-get choice collection def nil 'equal))
+                     (t                         choice))))
+      (if (listp results)
+        (progn
+          (list choice (cl-first results)))
+        '(choice results)))))
 ;;; typepad-lib.el end here
 (provide 'typepad-lib)

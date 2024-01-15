@@ -277,7 +277,7 @@
 (defun typepad-load ()
   (interactive)
   (if typepad-article-list
-    (let ((article (completing-read "Choose an article: ")))
+    (let ((article (alt-completing-read "Choose an article: " typepad-article-list)))
       (setq typepad-name (car article))
       (typepad-load-short-text (nth 1 article)))
     (typepad-load-dir)))
