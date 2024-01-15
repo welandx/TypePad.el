@@ -53,7 +53,7 @@
 
 (add-hook 'typepad-mode-hook
   (lambda ()
-    (add-hook 'post-self-insert-hook 'typepad-time-clear)))
+    (add-hook 'post-self-insert-hook 'typepad-time-clear nil t)))
 
 
 ;;; typepad-time.el end here

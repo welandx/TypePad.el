@@ -37,7 +37,7 @@
     (setq tp-pyim-delete (1+ tp-pyim-delete))
     (setq pyim--key-press-count (+ pyim--key-press-count 1))))
 
-(add-hook 'pre-command-hook #'pyim--key-press-count-clear-when-del)
+(add-hook 'pre-command-hook #'pyim--key-press-count-clear-when-del nil t)
 
 ;; when key 'a-z' or 'A-Z' press, count
 (defun pyim--key-press-count-letter ()
@@ -51,11 +51,11 @@
             (<= last-command-event ?z))
       (setq pyim--key-press-count (+ pyim--key-press-count 1)))))
 
-(add-hook 'post-command-hook #'pyim--key-press-count-letter)
+(add-hook 'post-command-hook #'pyim--key-press-count-letter nil t)
 ;; just message pyim--key-press-count when post-self-insert-hook
 (defun pyim--key-press-count-message ()
   "Message `pyim--key-press-count' when `post-self-insert-hook'."
-  ;; conunt +1 and message
+  ;; count +1 and message
   (message "PYIM: %d 次按键" pyim--key-press-count))
 
 ;; dynamic display pyim--key-press-count in mode-line at typepad-mode
@@ -97,13 +97,13 @@
    (t nil)))
 
 ;; 当光标位于 buffer 的开头时, 清除 pyim--key-press-count
-(defun pyim--key-press-count-clear-when-buffer-beg ()
+(defun tp-pyim-clear-when-buffer-beg ()
   "Clear `pyim--key-press-count' when buffer begin."
   (when (= (point) (point-min))
     (setq tp-pyim-delete 0) ;; clear del
     (setq pyim--key-press-count 0)))
 
-(add-hook 'post-command-hook #'pyim--key-press-count-clear-when-buffer-beg)
+(add-hook 'post-command-hook #'tp-pyim-clear-when-buffer-beg nil t)
 
 
 ;;; typepad-pyim.el end here

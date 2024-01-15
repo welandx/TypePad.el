@@ -201,7 +201,7 @@
 ;; hook to typepad-mode
 (add-hook 'typepad-mode-hook
           (lambda ()
-            (add-hook 'post-self-insert-hook 'typepad-paragraph-end)))
+            (add-hook 'post-self-insert-hook 'typepad-paragraph-end nil t)))
 
 
 (setq-default company-global-modes '(not typepad-mode))
