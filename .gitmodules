@@ -1,0 +1,3 @@
+[submodule "buffer-focus-hook"]
+	path = buffer-focus-hook
+	url = https://github.com/mschuldt/buffer-focus-hook.git
