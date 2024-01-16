@@ -266,6 +266,13 @@
   (setq typepad-use-key-rate-goal nil)
   (setq typepad-randomp nil))
 
+(defun tp-load-short ()
+  (interactive)
+  (setq typepad-auto-next nil)
+  (setq typepad-split-size 10)
+  (setq typepad-use-key-acc-goal t)
+  (setq typepad-use-key-rate-goal t)
+  (setq typepad-randomp t))
 
 (defvar typepad-name "example"
   "当前发文的文章名")
