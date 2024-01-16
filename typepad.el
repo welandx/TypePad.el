@@ -194,8 +194,8 @@
           (typepad-calc-code-len)
           typepad-name
           typepad-current-paragraph
-          typepad-total-paragraph
-          )
+          typepad-total-paragraph)
+        ;; (tp-save-to-sql)
         (if (check-standards typepad-use-key-acc-goal
               typepad-use-key-rate-goal
               typepad-key-acc-goal typepad-key-rate-goal)
@@ -280,6 +280,7 @@
   (let ((short-text (with-temp-buffer
                       (insert-file-contents path)
                       (buffer-string))))
+    (typepad-hash-article short-text)
     (if typepad-randomp
       (setq short-text (random-all-text short-text)))
     (setq typepad-short (split-string-every short-text typepad-split-size))
@@ -291,7 +292,7 @@
   (let ((n (read-number "请输入每段字数: ")))
     (setq typepad-split-size n)))
 
-;; `FIXME'
+;; `FIXME' load-dir
 (defun typepad-load ()
   (interactive)
   (if typepad-article-list
@@ -342,13 +343,38 @@
 (defvar typepad-current-hash nil)
 
 (defun typepad-hash ()
-  (interactive)
   (let* ((current-time (current-time))
           (timestamp (format-time-string "%Y-%m-%d %H:%M:%S" current-time))
           (num (number-to-string typepad-current-paragraph))
           (input (concat typepad-name num timestamp))
           (hash (secure-hash 'sha256 input)))
-    (setq typepad-current-hash (format "%s" hash))))
+    (setq typepad-current-hash hash)))
+
+(defvar tp-article-hash nil)
+
+(defun typepad-hash-article (text)
+  (let* ((size typepad-split-size)
+          (input (concat size text))
+          (hash (secure-hash 'sha256 input)))
+    (setq tp-article-hash hash)))
+
+;;; sqlite
+(require 'sqlite)
+
+(defun typepad-create-sqlite ()
+  (let ((tp-db (sqlite-open (concat user-emacs-directory "typepad.db"))))
+    (sqlite-execute tp-db
+      (concat
+        "CREATE TABLE IF NOT EXISTS article "
+        "(hash TEXT, name TEXT, length INTEGER, split INTEGER);"))
+    (sqlite-execute tp-db
+      (concat
+        "CREATE TABLE IF NOT EXISTS statistics "
+        "(hash TEXT, id INTEGER, ArticleHash TEXT, KeyRate REAL, speed REAL, "
+        "KeyAcc REAL, CodeLen REAL, Paragraph INTEGER, DEL INTEGER, "
+        "Time `FIXME', Date `FIXME');"
+        ))
+    (sqlite-close tp-db)))
 
 ;; load other modules
 (require 'typepad-pyim)
