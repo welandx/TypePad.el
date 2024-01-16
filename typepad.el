@@ -195,6 +195,8 @@
           typepad-name
           typepad-current-paragraph
           typepad-total-paragraph)
+        (typepad-hash)
+        (typepad-sql-stat)
         ;; (tp-save-to-sql)
         (if (check-standards typepad-use-key-acc-goal
               typepad-use-key-rate-goal
@@ -285,6 +287,7 @@
       (setq short-text (random-all-text short-text)))
     (setq typepad-short (split-string-every short-text typepad-split-size))
     (setq typepad-total-paragraph (length typepad-short))
+    (typepad-sql-article)
     (typepad-send-text)))
 
 (defun tp-set-split ()
@@ -362,18 +365,42 @@
 (require 'sqlite)
 
 (defun typepad-create-sqlite ()
-  (let ((tp-db (sqlite-open (concat user-emacs-directory "typepad.db"))))
+  (let ((tp-db (sqlite-open (concat user-emacs-directory "typepad.db")))
+         (time (time-to-seconds typepad-time-duration)))
     (sqlite-execute tp-db
       (concat
         "CREATE TABLE IF NOT EXISTS article "
-        "(hash TEXT, name TEXT, length INTEGER, split INTEGER);"))
+        "(id INTEGER PRIMARY KEY, hash TEXT, name TEXT, length INTEGER, split INTEGER);"))
     (sqlite-execute tp-db
       (concat
         "CREATE TABLE IF NOT EXISTS statistics "
-        "(hash TEXT, id INTEGER, ArticleHash TEXT, KeyRate REAL, speed REAL, "
+        "(hash TEXT, id INTEGER PRIMARY KEY, ArticleHash TEXT, KeyRate REAL, speed REAL, "
         "KeyAcc REAL, CodeLen REAL, Paragraph INTEGER, DEL INTEGER, "
-        "Time `FIXME', Date `FIXME');"
+        "Time REAL, Date DATETIME DEFAULT CURRENT_TIMESTAMP);"
         ))
+    (sqlite-close tp-db)))
+
+(defun typepad-sql-stat ()
+  (let ((tp-db (sqlite-open (concat user-emacs-directory "typepad.db"))))
+    (sqlite-execute tp-db
+      (concat "INSERT INTO statistics (hash, ArticleHash, KeyRate, "
+        "speed, KeyAcc, CodeLen, Paragraph, DEL, Time) VALUES "
+        (format "('%s', '%s', %f, %f, %f, %f, %d, %d, %f);"
+          typepad-current-hash tp-article-hash
+          typepad-key-rate typepad-speed typepad-key-acc
+          typepad-code-len typepad-current-paragraph tp-pyim-delete
+          (time-to-seconds typepad-time-duration))))
+    (sqlite-close tp-db)))
+
+(defun typepad-sql-article ()
+  (let* ((tp-db (sqlite-open (concat user-emacs-directory "typepad.db")))
+          (hashp (sqlite-execute tp-db
+                   (format "SELECT COUNT(*) FROM article WHERE hash = '%s'" tp-article-hash)))
+          (val (car (car hashp))))
+    (if (= val 0) (sqlite-execute tp-db
+                (concat "INSERT INTO article (hash, name, length, split) VALUES "
+                  (format "('%s', '%s', %d, %d);" tp-article-hash typepad-name
+                    typepad-total-paragraph typepad-split-size))))
     (sqlite-close tp-db)))
 
 ;; load other modules
