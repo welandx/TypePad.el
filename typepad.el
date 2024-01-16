@@ -299,10 +299,14 @@
 (defun typepad-load ()
   (interactive)
   (if typepad-article-list
+    (progn
+      (setq typepad-current-paragraph 1)
     (let ((article (alt-completing-read "Choose an article: " typepad-article-list)))
       (setq typepad-name (car article))
-      (typepad-load-short-text (nth 1 article)))
-    (typepad-load-dir)))
+      (typepad-load-short-text (nth 1 article))))
+    (progn
+      (message "load")
+      (typepad-load-dir))))
 
 
 (defvar typepad-total-paragraph 1
@@ -357,7 +361,7 @@
 
 (defun typepad-hash-article (text)
   (let* ((size typepad-split-size)
-          (input (concat size text))
+          (input (concat (string size) text))
           (hash (secure-hash 'sha256 input)))
     (setq tp-article-hash hash)))
 

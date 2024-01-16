@@ -8,7 +8,7 @@
 (defvar typepad-time-duration 'nil)
 
 ;; defvar key-rate
-(defvar typepad-key-rate 'nil)
+(defvar typepad-key-rate 0.0)
 
 (defvar typepad-speed 'nil)
 
