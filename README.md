@@ -43,8 +43,10 @@ git clone TypePad 到本地，然后：
 - [ ] 暂停功能
   - [ ] after-focus-change-function
 - [x] 生成 Hash
+- [ ] fix timer
 ## 演示
 设置了击键目标为4，第一段为击键达标跳转到发文区，调用 `typepad-send-next` 发下一段
+
 第二段打没有达到击键目标，直接在跟打区清空了buffer
 
 https://github.com/welandx/TypePad/assets/59045899/3f8be5e5-deb4-4319-b096-51b7013dfa88

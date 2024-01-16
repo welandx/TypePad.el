@@ -12,12 +12,17 @@
 
 (defvar typepad-speed 'nil)
 
-;; start a timer when first typing in typepad, every 0.1 s
+;; `FIXME' timer should start if no timer start
+;; `Note' (cancel-function-timers 'typepad-timer-func) can cancel all timer
 (defun typepad-start-timer ()
   (when (= pyim--key-press-count 1)
     (setq typepad-init-time (current-time))
     (typepad-timer-func)
-    (setq typepad-timer (run-with-idle-timer 0.1 t 'typepad-timer-func))))
+    (unless (bound-and-true-p typepad-timer)
+      (setq typepad-timer (timer-create))
+      (timer-set-function typepad-timer 'typepad-timer-func)
+      (timer-set-time typepad-timer '(0.1 repeat))
+      (timer-activate typepad-timer))))
 
 ;; start timer first
 (add-hook 'typepad-mode-hook 'typepad-start-timer)
