@@ -18,13 +18,13 @@ git clone TypePad 到本地，然后：
 - [X] 击键数据, 码长
   - [X] 计时器
 - [X] 结束统计
-- [ ] 载文, 发文
+- [x] 载文, 发文
   - [x] 载文路径
   - [x] 自动发文
   - [x] 列表载文
-  - [ ] 继续发文
-    - [ ] 非乱序继续
-    - [ ] 乱序继续
+  - [x] 继续发文
+    - [x] 非乱序继续
+    - [x] 乱序继续
 - [X] 纵向分屏
 - [X] 优化 UI
 - [x] 存储数据, 分析报告
@@ -36,17 +36,18 @@ git clone TypePad 到本地，然后：
 - [x] 键准数据
 - [x] 速度数据
 - [ ] 依赖处理
-- [ ] sqlite 储存数据
+- [x] sqlite 储存数据
   - [x] 文章表
   - [x] 记录表
-  - [ ] 重排序列
+  - [x] 重排序列
 - [ ] 处理错字
 - [ ] 暂停功能
   - [ ] after-focus-change-function
   - [ ] buffer-out-hook
 - [x] 生成 Hash
-- [ ] fix timer
+- [x] fix timer
 - [ ] db path
+- [ ] popup transient
 ## 演示
 设置了击键目标为4，第一段为击键达标跳转到发文区，调用 `typepad-send-next` 发下一段
 

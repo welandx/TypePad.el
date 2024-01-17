@@ -304,7 +304,8 @@
                       (buffer-string))))
     (typepad-hash-article short-text)
     (if typepad-randomp
-      (setq short-text (random-all-text short-text)))
+      (setq short-text (random-all-text short-text))
+      (typepad-sql-indices-save '(1)))
     (setq typepad-short (split-string-every short-text typepad-split-size))
     (setq typepad-total-paragraph (length typepad-short))
     (typepad-sql-article)
@@ -467,7 +468,7 @@ ORDER BY id DESC LIMIT 1;" hash))))
               (setq typepad-indices (typepad-decode (elt row 1)))
               (typepad-re-article text))
             (progn
-              (setq typepad-short (split-string-every all typepad-split-size))
+              (setq typepad-short (split-string-every text typepad-split-size))
               (setq typepad-total-paragraph (length typepad-short)))))
         (if (> (car (car n)) 0)
           (progn
