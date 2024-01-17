@@ -2,8 +2,8 @@
          "0.1"
          "typepad in Emacs")
 
-(website-url "")
-(keywords "type")
+(website-url "https://github.com/welandx/TypePad.el")
+(keywords "typing")
 
 (package-file "typepad.el")
 

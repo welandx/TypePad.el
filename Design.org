@@ -59,11 +59,17 @@
      - 是否需要达标
      
 2. 发送全文
+
+**** 继续发文
+用户调用继续－－article中检索到－－sort和stat检索到的最后一条记录－－该次是否为乱
+                             -sort中无记录
+            －article中无记录
 *** 存储数据
 - sqlite?
 - [X] 计录当前文章是第几段
 - [X] 计录当前文章名
 *** 暂停功能
+
 失去焦点后自动暂停
 切换buffer后自动暂停
 
@@ -73,6 +79,11 @@
 
    取后者
 2. 文字只读, 手动开始后可写
+   https://stackoverflow.com/questions/15272841/how-to-remove-a-function-from-run-with-idle-timer
+*** Package
+**** 函数入口
+**** transient
+**** 归并hook
 ** ISSUE
 1. 手动切换到跟打 buffer 时会多计一次按键;
    此时应按一次退格
