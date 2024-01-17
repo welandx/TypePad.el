@@ -1,5 +1,79 @@
 (require 'typepad-lib)
-;; define a mode for typepad writable buffer
+
+(defgroup typepad ()
+  "Customize group for typepad, a typing practice tool."
+  :group 'extensions)
+
+(defvar readonly-buffer-name "*发文区*"
+  "The name of readonly buffer.")
+
+(defvar writable-buffer-name "*跟打区*"
+  "The name of writable buffer.")
+
+(defvar sending-text "不者时今青任尽代形机"
+  "The char read from readonly buffer.")
+
+(defcustom typepad-key-rate-goal 4.00
+  "The goal of key rate.")
+
+(defcustom typepad-key-acc-goal 1
+  "The goal of key acc")
+
+;; whether or not use key rate goal
+(defcustom typepad-use-key-rate-goal t
+  "Whether or not use key rate goal.")
+
+(defcustom typepad-use-key-acc-goal t
+  "Whether or not use key acc goal.")
+
+;; total char num in the readonly buffer
+(defvar typepad-char-num 20
+  "Total char num in the readonly buffer.")
+
+(defvar typepad-code-len 0
+  "The code length of user input.")
+
+(defvar typepad-key-acc nil)
+
+(defvar typepad-short nil
+  "short text.")
+
+(defcustom typepad-text-path nil
+  "path to text")
+
+(defcustom typepad-split-size 10
+  "每n个字符分隔一次")
+
+(defcustom typepad-randomp t
+  "是否乱序全文")
+
+(defcustom typepad-auto-next nil
+  "是否自动下一段")
+
+(defvar typepad-name "example"
+  "当前发文的文章名")
+
+(defvar typepad-article-list nil
+  "所有的文章列表")
+
+(defvar typepad-total-paragraph 1
+  "当前发文的总段数")
+
+(defvar typepad-current-paragraph 1
+  "当前在发的段数")
+
+(defvar typepad-current-hash nil)
+
+(defvar tp-article-hash nil)
+
+(defface typepad-diff-face
+  '((t (:background "red")))
+  "Face for different text.")
+
+(defface typepad-same-face
+  '((t (:background "green")))
+  "Face for same text.")
+
 (define-derived-mode typepad-mode fundamental-mode
   "typepad"
   "Major mode for typepad."
@@ -17,35 +91,25 @@
   (setq-local cursor-type nil)
   (setq-local cursor-in-non-selected-windows nil))
 
-(defvar readonly-buffer-name "*发文区*"
-  "The name of readonly buffer.")
-
-(defvar writable-buffer-name "*跟打区*"
-  "The name of writable buffer.")
-
-(defvar sending-text "不者时今青任尽代形机"
-  "The char read from readonly buffer.")
-
 (defun random-sending-text ()
+  "Randomize the sending text."
   (interactive)
   (let ((sending-text-list (split-string sending-text "")))
     (key-quiz--shuffle-list sending-text-list)
-    (setq sending-text (mapconcat 'identity sending-text-list ""))
-    ))
+    (setq sending-text (mapconcat 'identity sending-text-list ""))))
 
 (defun random-all-text (txt)
+  "Randomize the loaded article"
   (interactive)
   (let ((txt-list (split-string txt "")))
     (key-quiz--shuffle-list txt-list)
     (setq typepad-short (mapconcat 'identity txt-list ""))))
 
 (defun typepad-create-window ()
-  "Create two windows, one for readonly text, one for writable text."
+  "initialize window layout"
   (interactive)
   (delete-other-windows)
-  (let (
-         (readonly-text sending-text))
-    ;; delete same name buffer before create))
+  (let ((readonly-text sending-text))
     (when (get-buffer readonly-buffer-name)
       (kill-buffer readonly-buffer-name))
     (when (get-buffer writable-buffer-name)
@@ -53,7 +117,6 @@
     (with-selected-window (split-window-below)
       (switch-to-buffer (get-buffer-create writable-buffer-name))
       (typepad-mode))
-    ;; (other-window 1)
     (with-current-buffer (get-buffer-create readonly-buffer-name)
       (erase-buffer)
       (insert readonly-text)
@@ -64,48 +127,6 @@
       ;; (org-switch-to-buffer-other-window readonly-buffer-name)
       (typepad-readonly-mode)
       (other-window 1))))
-
-;; `DROP?' count the total key count in the writable buffer
-(defun typepad-count-key ()
-  (interactive)
-  (let ((count 0))
-    (save-excursion
-      (goto-char (point-min))
-      (while (not (eobp))
-        (setq count (1+ count))
-        (forward-char)))
-    ;;delete the old key count in the mode line
-    (setq mode-line-misc-info
-          (delete (car (last mode-line-misc-info 2))
-                  mode-line-misc-info))
-    ;; directly set the mode line, not append
-    (setq mode-line-misc-info
-      (cons (format " %d" count) mode-line-misc-info))))
-
-;; only count the key in the writable buffer
-;; (add-hook 'typepad-mode-hook
-;;           (lambda ()
-;;             (add-hook 'post-command-hook 'typepad-count-key nil t)))
-
-;; define the face for diff highlight
-(defface typepad-diff-face
-  '((t (:background "red")))
-  "Face for different text.")
-(defface typepad-same-face
-  '((t (:background "green")))
-  "Face for same text.")
-
-;; total char num in the readonly buffer
-(defun typepad-count-char ()
-  (interactive)
-  (let ((count 0))
-    (save-excursion
-      (goto-char (point-min))
-      (while (not (eobp))
-        (setq count (1+ count))
-        (forward-char)))
-    (message "count: %s" count)
-    count))
 
 ;; `FIXME' def overlay for diff highlight
 (defun typepad-diff ()
@@ -135,29 +156,9 @@
                      (setq readonly-char (char-after)))
                 until (eobp)))))))))
 
-
-;; when the writable buffer change, compare it with readonly buffer
 (add-hook 'typepad-mode-hook
           (lambda ()
             (add-hook 'post-command-hook 'typepad-diff nil t)))
-
-;; key rate goal
-(defvar typepad-key-rate-goal 4.00
-  "The goal of key rate.")
-
-(defvar typepad-key-acc-goal 1
-  "The goal of key acc")
-
-;; whether or not use key rate goal
-(defvar typepad-use-key-rate-goal t
-  "Whether or not use key rate goal.")
-
-(defvar typepad-use-key-acc-goal t
-  "Whether or not use key acc goal.")
-
-;; total char num in the readonly buffer
-(defvar typepad-char-num 20
-  "Total char num in the readonly buffer.")
 
 (defun check-standards (use-acc use-rate acc rate)
   (let ((acc-passed t)
@@ -213,22 +214,9 @@
               (typepad-redraw-readonly-buffer)))
         ))))
 
-
-;; hook to typepad-mode
 (add-hook 'typepad-mode-hook
           (lambda ()
             (add-hook 'post-self-insert-hook 'typepad-paragraph-end nil t)))
-
-
-(setq-default company-global-modes '(not typepad-mode))
-
-(add-hook 'typepad-mode-hook
-  (lambda () (company-mode -1)))
-
-
-;; 计算码长
-(defvar typepad-code-len 0
-  "The code length of user input.")
 
 (defun typepad-calc-code-len ()
   (setq typepad-code-len
@@ -236,27 +224,11 @@
       (/ typepad-char-num 2.000)))
   typepad-code-len)
 
-(defvar typepad-key-acc nil)
-
 (defun typepad-calc-key-acc ()
   (setq typepad-key-acc
     (- 1 (/ (float tp-pyim-delete)
       (float pyim--key-press-count))))
   typepad-key-acc)
-
-(defvar typepad-short nil
-  "short text.")
-
-(defvar typepad-text-path nil
-  "path to text")
-
-(defvar typepad-split-size 10
-  "每n个字符分隔一次")
-
-(defvar typepad-randomp t
-  "是否乱序全文")
-
-(defvar typepad-auto-next nil)
 
 (defun tp-load-long ()
   (interactive)
@@ -273,11 +245,6 @@
   (setq typepad-use-key-acc-goal t)
   (setq typepad-use-key-rate-goal t)
   (setq typepad-randomp t))
-
-(defvar typepad-name "example"
-  "当前发文的文章名")
-
-(defvar typepad-article-list nil)
 
 (defun typepad-load-dir ()
   (interactive)
@@ -316,12 +283,6 @@
       (typepad-load-dir))))
 
 
-(defvar typepad-total-paragraph 1
-  "当前发文的总段数")
-
-(defvar typepad-current-paragraph 1
-  "当前在发的段数")
-
 ;; send text
 (defun typepad-send-text ()
   (interactive)
@@ -354,8 +315,6 @@
     (setq typepad-current-paragraph number)
     (typepad-send-text)))
 
-(defvar typepad-current-hash nil)
-
 (defun typepad-hash ()
   (let* ((current-time (current-time))
           (timestamp (format-time-string "%Y-%m-%d %H:%M:%S" current-time))
@@ -363,8 +322,6 @@
           (input (concat typepad-name num timestamp))
           (hash (secure-hash 'sha256 input)))
     (setq typepad-current-hash hash)))
-
-(defvar tp-article-hash nil)
 
 (defun typepad-hash-article (text)
   (let* ((size typepad-split-size)
@@ -418,6 +375,5 @@
 (require 'typepad-pyim)
 (require 'typepad-time)
 
-
-;;; typepad.el end here
 (provide 'typepad)
+;;; typepad.el end here
