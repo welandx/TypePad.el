@@ -202,7 +202,6 @@
           typepad-total-paragraph)
         (typepad-hash)
         (typepad-sql-stat)
-        ;; (tp-save-to-sql)
         (if (check-standards typepad-use-key-acc-goal
               typepad-use-key-rate-goal
               typepad-key-acc-goal typepad-key-rate-goal)
@@ -294,7 +293,6 @@
     (progn
       (message "load")
       (typepad-load-dir))))
-
 
 ;; send text
 (defun typepad-send-text ()
