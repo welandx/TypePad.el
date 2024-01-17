@@ -391,6 +391,13 @@
                     typepad-total-paragraph typepad-split-size))))
     (sqlite-close tp-db)))
 
+(defun typepad-sql-indices-save (indices)
+  (let* ((serialized (prin1-to-string indices))
+          (encoded (base64-encode-string serialized)))))
+
+(defun typepad-sql-indices-read ()
+  )
+
 ;; load other modules
 (require 'typepad-pyim)
 (require 'typepad-time)

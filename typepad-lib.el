@@ -2,11 +2,32 @@
 (defun key-quiz--shuffle-list (list)
   "Shuffles LIST randomly, modying it in-place."
   (dolist (i (reverse (number-sequence 1 (1- (length list)))))
-    (let ((j (random (1+ i)))
+    (let ((j (random (1+ i))) ;; save this
 	  (tmp (elt list i)))
       (setf (elt list i) (elt list j))
       (setf (elt list j) tmp)))
   list)
+
+(defvar indices '())
+
+(defun FY-shuffle-list (list)
+  "Shuffles LIST randomly, modifying it in-place.
+   Returns a list of indices used for shuffling."
+  (setq indices '())
+    (dolist (i (reverse (number-sequence 1 (1- (length list)))))
+      (let ((j (random (1+ i)))
+            (tmp (elt list i)))
+        (setf (elt list i) (elt list j))
+        (setf (elt list j) tmp)
+        (push j indices))))
+
+(defun FY-reproduce-shuffle (list ind)
+  (let* ((jlist (reverse ind))
+          (ilist (reverse (number-sequence 1 (1- (length list))))))
+    (cl-loop for (i j) in (cl-mapcar #'list ilist jlist)
+      do (let ((tmp (elt list i)))
+           (setf (elt list i) (elt list j))
+           (setf (elt list j) tmp)))))
 
 (defun split-string-every (str n)
   (let ((result '()))

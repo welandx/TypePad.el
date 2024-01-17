@@ -1,8 +1,6 @@
 # TypePad.el
 Emacs 内的跟打器，目前处于开发中，可以进行简单的测试
 ## 使用
-~~现在的typepad-pyim.el依赖pyim，且不会自动处理依赖~~
-
 git clone TypePad 到本地，然后：
 
 ```emacs-lisp
@@ -25,6 +23,8 @@ git clone TypePad 到本地，然后：
   - [x] 自动发文
   - [x] 列表载文
   - [ ] 继续发文
+    - [ ] 非乱序继续
+    - [ ] 乱序继续
 - [X] 纵向分屏
 - [X] 优化 UI
 - [x] 存储数据, 分析报告
@@ -36,12 +36,14 @@ git clone TypePad 到本地，然后：
 - [x] 键准数据
 - [x] 速度数据
 - [ ] 依赖处理
-- [x] sqlite 储存数据
+- [ ] sqlite 储存数据
   - [x] 文章表
   - [x] 记录表
+  - [ ] 重排序列
 - [ ] 处理错字
 - [ ] 暂停功能
   - [ ] after-focus-change-function
+  - [ ] buffer-out-hook
 - [x] 生成 Hash
 - [ ] fix timer
 ## 演示

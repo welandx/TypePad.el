@@ -9,6 +9,10 @@
 
 (script "test" "echo \"Error: no test specified\" && exit 1")
 
+(files "typepad-time.el" "typepad-pyim.el"
+       "buffer-focus-hook/*.el" "typepad.el"
+       "typepad-lib.el")
+
 (source "gnu")
 (source "melpa")
 
