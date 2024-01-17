@@ -130,6 +130,7 @@
 
 ;; `FIXME' def overlay for diff highlight
 (defun typepad-diff ()
+  "Highlight the diff between readonly buffer and writable buffer."
   (interactive)
   (with-current-buffer writable-buffer-name
     (save-excursion
@@ -161,6 +162,7 @@
             (add-hook 'post-command-hook 'typepad-diff nil t)))
 
 (defun check-standards (use-acc use-rate acc rate)
+  "Check if the user has reached the goal."
   (let ((acc-passed t)
         (rate-passed t))
     (when use-acc
@@ -171,6 +173,7 @@
 
 ;; redraw readonly buffer
 (defun typepad-redraw-readonly-buffer ()
+  "Redraw readonly buffer."
   (interactive)
   (with-current-buffer readonly-buffer-name
     (read-only-mode -1)
@@ -181,6 +184,7 @@
 
 ;; `FIXME'
 (defun typepad-paragraph-end ()
+  "End of paragraph"
   (let ((input-text (buffer-string))
          (last-char (char-before))
          (last-readonly (string-to-char (substring sending-text -1))))
@@ -219,18 +223,21 @@
             (add-hook 'post-self-insert-hook 'typepad-paragraph-end nil t)))
 
 (defun typepad-calc-code-len ()
+  "计算码长"
   (setq typepad-code-len
     (/ (float pyim--key-press-count)
       (/ typepad-char-num 2.000)))
   typepad-code-len)
 
 (defun typepad-calc-key-acc ()
+  "计算键准"
   (setq typepad-key-acc
     (- 1 (/ (float tp-pyim-delete)
       (float pyim--key-press-count))))
   typepad-key-acc)
 
 (defun tp-load-long ()
+  "设置标准为长文模式"
   (interactive)
   (setq typepad-auto-next t)
   (setq typepad-split-size 100)
@@ -239,20 +246,24 @@
   (setq typepad-randomp nil))
 
 (defun tp-load-short ()
+  "设置标准为短文模式"
   (interactive)
   (setq typepad-auto-next nil)
   (setq typepad-split-size 10)
   (setq typepad-use-key-acc-goal t)
   (setq typepad-use-key-rate-goal t)
+  (setq typepad-key-rate-goal 6.00)
   (setq typepad-randomp t))
 
 (defun typepad-load-dir ()
+  "Load all txt files in the directory."
   (interactive)
   (if typepad-text-path
     (setq typepad-article-list (get-txt-file-details typepad-text-path))
     (message "未设置 typepad-text-path")))
 
 (defun typepad-load-short-text (path)
+  "Load short text from the file."
   (let ((short-text (with-temp-buffer
                       (insert-file-contents path)
                       (buffer-string))))
@@ -265,12 +276,14 @@
     (typepad-send-text)))
 
 (defun tp-set-split ()
+  "设置每段字数"
   (interactive)
   (let ((n (read-number "请输入每段字数: ")))
     (setq typepad-split-size n)))
 
 ;; `FIXME' load-dir
 (defun typepad-load ()
+  "选择文章"
   (interactive)
   (if typepad-article-list
     (progn
@@ -285,11 +298,13 @@
 
 ;; send text
 (defun typepad-send-text ()
+  "发文"
   (interactive)
   (setq sending-text (nth (- typepad-current-paragraph 1) typepad-short))
   (typepad-redraw-readonly-buffer))
 
 (defun typepad-send-next ()
+  "发下一段"
   (interactive)
   (let ((current typepad-current-paragraph))
     (if (<= typepad-total-paragraph current)
@@ -300,6 +315,7 @@
         ))))
 
 (defun typepad-send-prev ()
+  "发上一段"
   (interactive)
   (let ((current typepad-current-paragraph))
     (if (eq current 1)
@@ -310,12 +326,14 @@
         ))))
 
 (defun typepad-send-nth ()
+  "发第n段"
   (interactive)
   (let ((number (read-number "请输入段数: ")))
     (setq typepad-current-paragraph number)
     (typepad-send-text)))
 
 (defun typepad-hash ()
+  "计算当前段的hash值"
   (let* ((current-time (current-time))
           (timestamp (format-time-string "%Y-%m-%d %H:%M:%S" current-time))
           (num (number-to-string typepad-current-paragraph))
@@ -324,6 +342,7 @@
     (setq typepad-current-hash hash)))
 
 (defun typepad-hash-article (text)
+  "计算全文的hash值"
   (let* ((size typepad-split-size)
           (input (concat (string size) text))
           (hash (secure-hash 'sha256 input)))
@@ -333,6 +352,7 @@
 (require 'sqlite)
 
 (defun typepad-create-sqlite ()
+  "Create sqlite database."
   (let ((tp-db (sqlite-open (concat user-emacs-directory "typepad.db")))
          (time (time-to-seconds typepad-time-duration)))
     (sqlite-execute tp-db
@@ -349,6 +369,7 @@
     (sqlite-close tp-db)))
 
 (defun typepad-sql-stat ()
+  "Save statistics to sqlite."
   (let ((tp-db (sqlite-open (concat user-emacs-directory "typepad.db"))))
     (sqlite-execute tp-db
       (concat "INSERT INTO statistics (hash, ArticleHash, KeyRate, "
@@ -361,6 +382,7 @@
     (sqlite-close tp-db)))
 
 (defun typepad-sql-article ()
+  "Save article to sqlite."
   (let* ((tp-db (sqlite-open (concat user-emacs-directory "typepad.db")))
           (hashp (sqlite-execute tp-db
                    (format "SELECT COUNT(*) FROM article WHERE hash = '%s'" tp-article-hash)))
