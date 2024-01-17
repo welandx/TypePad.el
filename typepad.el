@@ -123,6 +123,7 @@
   (setq-local cursor-type nil)
   (setq-local cursor-in-non-selected-windows nil))
 
+;; `FIXME' add prefix
 (defun random-sending-text ()
   "Randomize the sending text."
   (interactive)
@@ -130,13 +131,16 @@
     (key-quiz--shuffle-list sending-text-list)
     (setq sending-text (mapconcat 'identity sending-text-list ""))))
 
+;; `FIXME' add prefix
 (defun random-all-text (txt)
   "Randomize the loaded article"
   (interactive)
-  (let ((txt-list (split-string txt "")))
-    (key-quiz--shuffle-list txt-list)
+  (let* ((txt-list (split-string txt ""))
+          (indices (FY-shuffle-list txt-list)))
+    (typepad-sql-indices-save typepad-indices)
     (setq typepad-short (mapconcat 'identity txt-list ""))))
 
+;;;###autoload
 (defun typepad-create-window ()
   "initialize window layout"
   (interactive)
@@ -313,15 +317,16 @@
     (setq typepad-split-size n)))
 
 ;; `FIXME' load-dir
+;;;###autoload
 (defun typepad-load ()
   "选择文章"
   (interactive)
   (if typepad-article-list
     (progn
       (setq typepad-current-paragraph 1)
-    (let ((article (alt-completing-read "Choose an article: " typepad-article-list)))
-      (setq typepad-name (car article))
-      (typepad-load-short-text (nth 1 article))))
+      (let ((article (alt-completing-read "Choose an article: " typepad-article-list)))
+        (setq typepad-name (car article))
+        (typepad-load-short-text (nth 1 article))))
     (progn
       (message "load")
       (typepad-load-dir))))
@@ -376,7 +381,8 @@
   (let* ((size typepad-split-size)
           (input (concat (string size) text))
           (hash (secure-hash 'sha256 input)))
-    (setq tp-article-hash hash)))
+    (setq tp-article-hash hash)
+    hash))
 
 ;;; sqlite
 (require 'sqlite)
@@ -396,6 +402,10 @@
         "KeyAcc REAL, CodeLen REAL, Paragraph INTEGER, DEL INTEGER, "
         "Time REAL, Date DATETIME DEFAULT CURRENT_TIMESTAMP);"
         ))
+    (sqlite-execute tp-db
+      (concat
+        "CREATE TABLE IF NOT EXISTS sort "
+        "(hash TEXT, randomp INTEGER, indices TEXT DEFAULT 'nil');"))
     (sqlite-close tp-db)))
 
 (defun typepad-sql-stat ()
@@ -428,10 +438,57 @@
           (encoded (base64-encode-string serialized))
           (tp-db (sqlite-open (concat user-emacs-directory "typepad.db"))))
     (sqlite-execute tp-db
-      "INSERT INTO sort (hash, p, encoded)")))
+      (format "INSERT INTO sort (hash, randomp, indices) VALUES ('%s', %d , '%s')"
+        tp-article-hash (if typepad-randomp 1 0) encoded)
+      )))
 
-(defun typepad-sql-indices-read ()
-  )
+(defun typepad-continue-send ()
+  (interactive)
+  (if typepad-article-list
+    (progn
+      (let* ((article (alt-completing-read "Choose an article: " typepad-article-list))
+             (path (nth 1 article))
+             (text (with-temp-buffer
+                      (insert-file-contents path)
+                     (buffer-string)))
+              (hash (typepad-hash-article text))
+              (tp-db (sqlite-open (concat user-emacs-directory "typepad.db")))
+              (result (sqlite-execute tp-db
+                        (format "SELECT randomp, indices FROM sort
+WHERE hash='%s' ORDER BY rowid DESC LIMIT 1;" hash)))
+              (n (sqlite-execute tp-db
+                       (format "SELECT Paragraph FROM statistics WHERE ArticleHash ='%s'
+ORDER BY id DESC LIMIT 1;" hash))))
+        (let ((row (car result)))
+          ;; (message "%s" (elt row 0)) ;debug
+          ;; (message "%s" (elt row 1))
+          (if (eq (elt row 0) 1)
+            (progn
+              (setq typepad-indices (typepad-decode (elt row 1)))
+              (typepad-re-article text))
+            (progn
+              (setq typepad-short (split-string-every all typepad-split-size))
+              (setq typepad-total-paragraph (length typepad-short)))))
+        (if (> (car (car n)) 0)
+          (progn
+            (setq typepad-current-paragraph (car (car n)))
+            (typepad-send-text))
+          (message "无记录"))
+        (sqlite-close tp-db)
+        ))
+    (progn
+      (message "load")
+      (typepad-load-dir))))
+
+(defun typepad-re-article (text)
+  (let* ((text-list (split-string text "")))
+    (FY-reproduce-shuffle text-list typepad-indices)
+    (let ((all (mapconcat 'identity text-list "")))
+      (setq typepad-short (split-string-every all typepad-split-size))
+      (setq typepad-total-paragraph (length typepad-short)))))
+
+(defun typepad-decode (ind)
+  (read (base64-decode-string ind)))
 
 ;; load other modules
 (require 'typepad-pyim)

@@ -8,18 +8,18 @@
       (setf (elt list j) tmp)))
   list)
 
-(defvar indices '())
+(defvar typepad-indices '())
 
 (defun FY-shuffle-list (list)
   "Shuffles LIST randomly, modifying it in-place.
-   Returns a list of indices used for shuffling."
-  (setq indices '())
-    (dolist (i (reverse (number-sequence 1 (1- (length list)))))
-      (let ((j (random (1+ i)))
-            (tmp (elt list i)))
-        (setf (elt list i) (elt list j))
-        (setf (elt list j) tmp)
-        (push j indices))))
+   Returns a list of typepad-indices used for shuffling."
+  (setq typepad-indices '())
+  (dolist (i (reverse (number-sequence 1 (1- (length list)))))
+    (let ((j (random (1+ i)))
+           (tmp (elt list i)))
+      (setf (elt list i) (elt list j))
+      (setf (elt list j) tmp)
+      (push j typepad-indices))))
 
 (defun FY-reproduce-shuffle (list ind)
   (let* ((jlist (reverse ind))
