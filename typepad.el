@@ -31,6 +31,10 @@
 ;;; Code:
 
 (require 'typepad-lib)
+(require 'typepad-pyim)
+(require 'typepad-time)
+(require 'buffer-focus-hook)
+(require 'sqlite)
 
 (defgroup typepad ()
   "Customize group for typepad, a typing practice tool."
@@ -260,7 +264,7 @@
           (equal last-char last-readonly))
       (progn
         (setq typepad-key-acc (typepad-pyim-key-acc))
-        (setq typepad-code-len (typepad-pyim-code-len))
+        (setq typepad-code-len (typepad-pyim-code-len typepad-char-num))
         (message "第 %d 段 速度: %.2f 键准: %.2f%% 击键: %.3f 码长: %.3f [%s] %d/%d"
           typepad-current-paragraph
           (typepad-get-speed)
@@ -404,8 +408,6 @@
     (setq tp-article-hash hash)
     hash))
 
-;;; sqlite
-(require 'sqlite)
 
 (defun typepad-create-sqlite ()
   "Create sqlite database."
@@ -511,8 +513,6 @@ ORDER BY id DESC LIMIT 1;" hash))))
 (defun typepad-decode (ind)
   (read (base64-decode-string ind)))
 
-(require 'buffer-focus-hook)
-
 (let ((buf writable-buffer-name))
   (add-hook 'typepad-mode-hook
     (lambda ()
@@ -520,10 +520,6 @@ ORDER BY id DESC LIMIT 1;" hash))))
       (add-function :after after-focus-change-function
         (lambda () (typepad-focus-out buf))))))
 
-
-;; load other modules
-(require 'typepad-pyim)
-(require 'typepad-time)
 
 (provide 'typepad)
 ;;; typepad.el ends here
