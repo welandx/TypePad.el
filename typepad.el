@@ -167,6 +167,14 @@
       (typepad-readonly-mode)
       (other-window 1))))
 
+(defun typepad-re-window ()
+  (interactive)
+  (delete-other-windows)
+  (switch-to-buffer readonly-buffer-name)
+  (with-selected-window (split-window-below)
+    (switch-to-buffer writable-buffer-name))
+  (other-window 1))
+
 ;; `FIXME' def overlay for diff highlight
 (defun typepad-diff ()
   "Highlight the diff between readonly buffer and writable buffer."

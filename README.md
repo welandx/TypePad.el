@@ -41,9 +41,9 @@ git clone TypePad 到本地，然后：
   - [x] 记录表
   - [x] 重排序列
 - [ ] 处理错字
-- [ ] 暂停功能
-  - [ ] after-focus-change-function
-  - [ ] buffer-out-hook
+- [x] 暂停功能
+  - [x] after-focus-change-function
+  - [x] buffer-out-hook
 - [x] 生成 Hash
 - [x] fix timer
 - [x] db path
