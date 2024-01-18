@@ -71,18 +71,17 @@
     (add-hook 'post-self-insert-hook 'typepad-time-clear nil t)))
 
 (defun typepad-focus-out ()
-  (cancel-function-timers 'typepad-timer-func)
-  (with-current-buffer writable-buffer-name
-    (read-only-mode 1)))
+  (when typepad-timer
+    (cancel-function-timers 'typepad-timer-func)
+    (with-current-buffer writable-buffer-name
+      (read-only-mode 1))
+    (setq typepad-timer nil)))
 
 (defun typepad-focus-return ()
   (interactive)
   (setq typepad-init-time (time-subtract (current-time) typepad-time-duration))
-  (unless (bound-and-true-p typepad-timer)
-      (setq typepad-timer (timer-create))
-      (timer-set-function typepad-timer 'typepad-timer-func)
-      (timer-set-time typepad-timer '(0.1 repeat))
-    (timer-activate typepad-timer))
+  (unless typepad-timer
+    (setq typepad-timer (run-at-time t 0.1 'typepad-timer-func)))
   (read-only-mode -1))
 
 (add-hook 'typepad-mode-hook
