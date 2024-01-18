@@ -66,5 +66,48 @@
           (list choice (cl-first results)))
         '(choice results)))))
 
+;; from https://github.com/mschuldt/buffer-focus-hook
+(defvar buffer-focus-hook--current-buffer nil
+  "Buffer currently in focus.")
+
+(defvar buffer-focus-hook--in nil
+  "Normal hook run when a buffers window gains focus.")
+
+(defvar buffer-focus-hook--out nil
+  "Normal hook run when a buffers window looses focus.")
+
+(defun buffer-focus-out-callback (callback &optional buffer)
+  "Set the CALLBACK to be run when BUFFER or current buffer window looses focus."
+  (with-current-buffer (or buffer (current-buffer))
+    (add-hook 'buffer-focus-hook--out callback nil t)))
+
+(defun buffer-focus-in-callback (callback &optional buffer)
+  "Set the CALLBACK to be run when BUFFER or current buffer window gains focus."
+  (with-current-buffer (or buffer (current-buffer))
+    (add-hook 'buffer-focus-hook--in callback nil t)))
+
+(defun buffer-focus-hook--updater ()
+  "Main buffer focus hook update function added for ‘buffer-list-update-hook’."
+  (when (not (buffer-live-p buffer-focus-hook--current-buffer))
+    (setq buffer-focus-hook--current-buffer nil))
+  (when (and (eq (window-buffer (selected-window))
+                 (current-buffer))
+             (not (eq buffer-focus-hook--current-buffer
+                      (current-buffer))))
+    ;; selected window has current buffer
+    (when buffer-focus-hook--current-buffer
+      ;; current buffer lost focus
+      (with-current-buffer buffer-focus-hook--current-buffer
+        (run-hooks 'buffer-focus-hook--out)
+        (setq buffer-focus-hook--current-buffer nil)))
+
+    (when (or buffer-focus-hook--in
+              buffer-focus-hook--out)
+      ;; current buffer gaining focus
+      (setq buffer-focus-hook--current-buffer (current-buffer))
+      (run-hooks 'buffer-focus-hook--in))))
+
+(add-hook 'buffer-list-update-hook 'buffer-focus-hook--updater)
+
 (provide 'typepad-lib)
 ;;; typepad-lib.el ends here

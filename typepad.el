@@ -4,7 +4,7 @@
 
 ;; Author: welandx <welandx@skiff.com>
 ;; URL: https://github.com/welandx/TypePad.el
-;; Version: 0.2.1
+;; Version: 0.2.2
 ;; Package-Requires: ((emacs "29.1") (pyim))
 ;; Keywords: typing
 
@@ -33,7 +33,6 @@
 (require 'typepad-lib)
 (require 'typepad-pyim)
 (require 'typepad-time)
-(require 'buffer-focus-hook)
 (require 'sqlite)
 
 (defgroup typepad ()
