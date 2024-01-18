@@ -46,17 +46,25 @@
   "The char read from readonly buffer.")
 
 (defcustom typepad-key-rate-goal 4.00
-  "The goal of key rate.")
+  "The goal of key rate."
+  :group 'typepad
+  :type 'number)
 
 (defcustom typepad-key-acc-goal 1
-  "The goal of key acc")
+  "The goal of key acc"
+  :group 'typepad
+  :type 'number)
 
 ;; whether or not use key rate goal
 (defcustom typepad-use-key-rate-goal t
-  "Whether or not use key rate goal.")
+  "Whether or not use key rate goal."
+  :group 'typepad
+  :type 'boolean)
 
 (defcustom typepad-use-key-acc-goal t
-  "Whether or not use key acc goal.")
+  "Whether or not use key acc goal."
+  :group 'typepad
+  :type 'boolean)
 
 ;; total char num in the readonly buffer
 (defvar typepad-char-num 20
@@ -71,19 +79,29 @@
   "short text.")
 
 (defcustom typepad-text-path nil
-  "path to text")
+  "path to text"
+  :group 'typepad
+  :type 'string)
 
 (defcustom typepad-db-path (concat user-emacs-directory "typepad.db")
-  "path to db")
+  "path to db"
+  :group 'typepad
+  :type 'string)
 
 (defcustom typepad-split-size 10
-  "每n个字符分隔一次")
+  "每n个字符分隔一次"
+  :group 'typepad
+  :type 'integer)
 
 (defcustom typepad-randomp t
-  "是否乱序全文")
+  "是否乱序全文"
+  :group 'typepad
+  :type 'boolean)
 
 (defcustom typepad-auto-next nil
-  "是否自动下一段")
+  "是否自动下一段"
+  :group 'typepad
+  :type 'boolean)
 
 (defvar typepad-name "example"
   "当前发文的文章名")
@@ -100,6 +118,8 @@
 (defvar typepad-current-hash nil)
 
 (defvar tp-article-hash nil)
+
+(defvar typepad-indices '())
 
 (defface typepad-diff-face
   '((t (:background "red")))
@@ -138,8 +158,8 @@
 (defun random-all-text (txt)
   "Randomize the loaded article"
   (interactive)
-  (let* ((txt-list (split-string txt ""))
-          (indices (FY-shuffle-list txt-list)))
+  (let* ((txt-list (split-string txt "")))
+    (setq typepad-indices (FY-shuffle-list txt-list))
     (typepad-sql-indices-save typepad-indices)
     (setq typepad-short (mapconcat 'identity txt-list ""))))
 
@@ -185,7 +205,8 @@
       (let ((input-list (split-string
                           (buffer-substring-no-properties
                             (point-min) (point-max)) "" t))
-             (diff-range (point-max))) ;; `ISSUE' why?
+             ;; (diff-range (point-max)) ;; `ISSUE' why?
+             )
         (with-current-buffer readonly-buffer-name
           (save-excursion
             (remove-overlays)
@@ -208,7 +229,7 @@
           (lambda ()
             (add-hook 'post-command-hook 'typepad-diff nil t)))
 
-(defun check-standards (use-acc use-rate acc rate)
+(defun check-standards (use-acc use-rate)
   "Check if the user has reached the goal."
   (let ((acc-passed t)
         (rate-passed t))
@@ -250,8 +271,7 @@
         (typepad-hash)
         (typepad-sql-stat)
         (if (check-standards typepad-use-key-acc-goal
-              typepad-use-key-rate-goal
-              typepad-key-acc-goal typepad-key-rate-goal)
+              typepad-use-key-rate-goal)
             (progn
               (typepad-diff)
               (erase-buffer)
@@ -401,8 +421,7 @@
 
 (defun typepad-create-sqlite ()
   "Create sqlite database."
-  (let ((tp-db (sqlite-open  typepad-db-path))
-         (time (time-to-seconds typepad-time-duration)))
+  (let ((tp-db (sqlite-open  typepad-db-path)))
     (sqlite-execute tp-db
       (concat
         "CREATE TABLE IF NOT EXISTS article "
@@ -503,6 +522,16 @@ ORDER BY id DESC LIMIT 1;" hash))))
 
 (defun typepad-decode (ind)
   (read (base64-decode-string ind)))
+
+(require 'buffer-focus-hook)
+
+(let ((buf writable-buffer-name))
+  (add-hook 'typepad-mode-hook
+    (lambda ()
+      (buffer-focus-out-callback (lambda () (typepad-focus-out buf)))
+      (add-function :after after-focus-change-function
+        (lambda () (typepad-focus-out buf))))))
+
 
 ;; load other modules
 (require 'typepad-pyim)

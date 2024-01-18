@@ -1,3 +1,5 @@
+;;; typepad-pyim.el --- input of pyim -*- lexical-binding: t; -*-
+
 (defvar pyim--key-press-count 0)
 
 (defvar tp-pyim-delete 0)
@@ -34,7 +36,7 @@
     (add-hook 'pre-command-hook #'pyim--key-press-count-clear-when-del nil t)))
 
 (defun pyim--key-press-count-letter ()
-  "`pyim--key-press-count' when key 'a-z' or 'A-Z' press."
+  "count++ when key `a-z' or `A-Z' press."
   (when (number-or-marker-p last-command-event)
     (when (and (>= last-command-event ?A)
             (<= last-command-event ?Z))

@@ -1,4 +1,4 @@
-(require 'buffer-focus-hook)
+;;; typepad-time.el --- timer -*- lexical-binding: t; -*-
 
 (defvar typepad-init-time 'nil
   "输入的开始时间")
@@ -70,10 +70,10 @@
   (lambda ()
     (add-hook 'post-self-insert-hook 'typepad-time-clear nil t)))
 
-(defun typepad-focus-out ()
+(defun typepad-focus-out (buf)
   (when typepad-timer
     (cancel-function-timers 'typepad-timer-func)
-    (with-current-buffer writable-buffer-name
+    (with-current-buffer buf
       (read-only-mode 1))
     (setq typepad-timer nil)))
 
@@ -84,10 +84,11 @@
     (setq typepad-timer (run-at-time t 0.1 'typepad-timer-func)))
   (read-only-mode -1))
 
-(add-hook 'typepad-mode-hook
-  (lambda () (buffer-focus-out-callback 'typepad-focus-out)
-    (add-function :after after-focus-change-function
-      #'typepad-focus-out)))
+;; (add-hook 'typepad-mode-hook
+;;   (lambda () (buffer-focus-out-callback (lambda (buf)
+;;                                            (typepad-focus-out buf)))
+;;     (add-function :after after-focus-change-function
+;;       (lambda (buf) (typepad-focus-out buf)))))
 
 (provide 'typepad-time)
 ;;; typepad-time.el ends here

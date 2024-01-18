@@ -1,3 +1,4 @@
+;;; typepad-lib.el --- lib function -*- lexical-binding: t; -*-
 ;; copy from purcell https://gist.github.com/purcell/34824f1b676e6188540cdf71c7cc9fc4
 (defun key-quiz--shuffle-list (list)
   "Shuffles LIST randomly, modying it in-place."
@@ -8,18 +9,17 @@
       (setf (elt list j) tmp)))
   list)
 
-(defvar typepad-indices '())
-
 (defun FY-shuffle-list (list)
   "Shuffles LIST randomly, modifying it in-place.
    Returns a list of typepad-indices used for shuffling."
-  (setq typepad-indices '())
-  (dolist (i (reverse (number-sequence 1 (1- (length list)))))
-    (let ((j (random (1+ i)))
-           (tmp (elt list i)))
-      (setf (elt list i) (elt list j))
-      (setf (elt list j) tmp)
-      (push j typepad-indices))))
+  (let ((ind '()))
+    (dolist (i (reverse (number-sequence 1 (1- (length list)))))
+      (let ((j (random (1+ i)))
+             (tmp (elt list i)))
+        (setf (elt list i) (elt list j))
+        (setf (elt list j) tmp)
+        (push j ind)))
+    ind))
 
 (defun FY-reproduce-shuffle (list ind)
   (let* ((jlist (reverse ind))
