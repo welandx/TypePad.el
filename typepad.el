@@ -2,9 +2,9 @@
 
 ;; Copyright (C) 2024  welandx
 
-;; Author: welandx <{ welandx@skiff.com }>
+;; Author: welandx <welandx@skiff.com>
 ;; URL: https://github.com/welandx/TypePad.el
-;; Version: 0.1
+;; Version: 0.2.1
 ;; Package-Requires: ((emacs "29.1") (pyim))
 ;; Keywords: typing
 

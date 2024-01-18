@@ -7,7 +7,12 @@ Emacs 内的跟打器
   :vc (:url "https://github.com/welandx/TypePad.el"
         :branch master))
 ```
-
+或使用 `straight`
+```emacs-lisp
+(straight-use-package '(typepad :type git :host github
+                         :repo "welandx/TypePad.el"
+                         :files (:defaults "buffer-focus-hook/*.el")))
+```
 ## Usage
 1. 设置 `typepad-text-path`, 发文的文本所在目录
 2. `M-x typepad-create-sqlite`, 创建数据库

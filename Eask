@@ -1,5 +1,5 @@
 (package "typepad"
-         "0.1"
+         "0.2.1"
          "typepad in Emacs")
 
 (website-url "https://github.com/welandx/TypePad.el")
@@ -10,7 +10,7 @@
 (script "test" "echo \"Error: no test specified\" && exit 1")
 
 (files "typepad-time.el" "typepad-pyim.el"
-       "buffer-focus-hook/*.el" "typepad.el"
+       "buffer-focus-hook/buffer-focus-hook.el" "typepad.el"
        "typepad-lib.el")
 
 (source "gnu")
