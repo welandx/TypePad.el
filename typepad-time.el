@@ -46,8 +46,6 @@
 ;; display key rate in mode line
 (defun get-key-rate ()
   "Get key rate"
-  ;; (when (bound-and-true-p typepad-key-rate)
-  ;;   (propertize (format " %.3f keys/s" typepad-key-rate) 'face '(:foreground "red")))
   (format " %.3f keys/s" typepad-key-rate))
 
 (add-hook 'typepad-mode-hook

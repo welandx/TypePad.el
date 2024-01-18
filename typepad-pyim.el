@@ -88,6 +88,17 @@
   (lambda ()
     (add-hook 'post-command-hook #'tp-pyim-clear-when-buffer-beg nil t)))
 
+(defun typepad-pyim-key-acc ()
+  "计算键准"
+  (let ((key-acc (- 1 (/ (float tp-pyim-delete)
+                        (float pyim--key-press-count)))))
+    key-acc))
+
+(defun typepad-pyim-code-len (num)
+  "计算码长"
+  (let ((len (/ (float pyim--key-press-count)
+               (/ num 2.000))))
+    len))
 
 (provide 'typepad-pyim)
 ;;; typepad-pyim.el ends here

@@ -259,12 +259,14 @@
     (if (and (equal typepad-char-num (string-width input-text))
           (equal last-char last-readonly))
       (progn
+        (setq typepad-key-acc (typepad-pyim-key-acc))
+        (setq typepad-code-len (typepad-pyim-code-len))
         (message "第 %d 段 速度: %.2f 键准: %.2f%% 击键: %.3f 码长: %.3f [%s] %d/%d"
           typepad-current-paragraph
           typepad-speed
-          (* (typepad-calc-key-acc) 100)
+          (* typepad-key-acc 100)
           typepad-key-rate
-          (typepad-calc-code-len)
+          typepad-code-len
           typepad-name
           typepad-current-paragraph
           typepad-total-paragraph)
@@ -287,20 +289,6 @@
 (add-hook 'typepad-mode-hook
           (lambda ()
             (add-hook 'post-self-insert-hook 'typepad-paragraph-end nil t)))
-
-(defun typepad-calc-code-len ()
-  "计算码长"
-  (setq typepad-code-len
-    (/ (float pyim--key-press-count)
-      (/ typepad-char-num 2.000)))
-  typepad-code-len)
-
-(defun typepad-calc-key-acc ()
-  "计算键准"
-  (setq typepad-key-acc
-    (- 1 (/ (float tp-pyim-delete)
-      (float pyim--key-press-count))))
-  typepad-key-acc)
 
 (defun tp-load-long ()
   "设置标准为长文模式"
