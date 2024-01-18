@@ -46,7 +46,7 @@ git clone TypePad 到本地，然后：
   - [ ] buffer-out-hook
 - [x] 生成 Hash
 - [x] fix timer
-- [ ] db path
+- [x] db path
 - [ ] popup transient
 ## 演示
 设置了击键目标为4，第一段为击键达标跳转到发文区，调用 `typepad-send-next` 发下一段

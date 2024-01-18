@@ -73,6 +73,9 @@
 (defcustom typepad-text-path nil
   "path to text")
 
+(defcustom typepad-db-path (concat user-emacs-directory "typepad.db")
+  "path to db")
+
 (defcustom typepad-split-size 10
   "每n个字符分隔一次")
 
@@ -390,7 +393,7 @@
 
 (defun typepad-create-sqlite ()
   "Create sqlite database."
-  (let ((tp-db (sqlite-open (concat user-emacs-directory "typepad.db")))
+  (let ((tp-db (sqlite-open  typepad-db-path))
          (time (time-to-seconds typepad-time-duration)))
     (sqlite-execute tp-db
       (concat
@@ -411,7 +414,7 @@
 
 (defun typepad-sql-stat ()
   "Save statistics to sqlite."
-  (let ((tp-db (sqlite-open (concat user-emacs-directory "typepad.db"))))
+  (let ((tp-db (sqlite-open  typepad-db-path)))
     (sqlite-execute tp-db
       (concat "INSERT INTO statistics (hash, ArticleHash, KeyRate, "
         "speed, KeyAcc, CodeLen, Paragraph, DEL, Time) VALUES "
@@ -424,7 +427,7 @@
 
 (defun typepad-sql-article ()
   "Save article to sqlite."
-  (let* ((tp-db (sqlite-open (concat user-emacs-directory "typepad.db")))
+  (let* ((tp-db (sqlite-open  typepad-db-path))
           (hashp (sqlite-execute tp-db
                    (format "SELECT COUNT(*) FROM article WHERE hash = '%s'" tp-article-hash)))
           (val (car (car hashp))))
@@ -437,7 +440,7 @@
 (defun typepad-sql-indices-save (indices)
   (let* ((serialized (prin1-to-string indices))
           (encoded (base64-encode-string serialized))
-          (tp-db (sqlite-open (concat user-emacs-directory "typepad.db"))))
+          (tp-db (sqlite-open  typepad-db-path)))
     (sqlite-execute tp-db
       (format "INSERT INTO sort (hash, randomp, indices) VALUES ('%s', %d , '%s')"
         tp-article-hash (if typepad-randomp 1 0) encoded)
@@ -453,13 +456,14 @@
                       (insert-file-contents path)
                      (buffer-string)))
               (hash (typepad-hash-article text))
-              (tp-db (sqlite-open (concat user-emacs-directory "typepad.db")))
+              (tp-db (sqlite-open  typepad-db-path))
               (result (sqlite-execute tp-db
                         (format "SELECT randomp, indices FROM sort
 WHERE hash='%s' ORDER BY rowid DESC LIMIT 1;" hash)))
               (n (sqlite-execute tp-db
                        (format "SELECT Paragraph FROM statistics WHERE ArticleHash ='%s'
 ORDER BY id DESC LIMIT 1;" hash))))
+        (setq typepad-name (nth 0 article))
         (let ((row (car result)))
           ;; (message "%s" (elt row 0)) ;debug
           ;; (message "%s" (elt row 1))
@@ -470,11 +474,12 @@ ORDER BY id DESC LIMIT 1;" hash))))
             (progn
               (setq typepad-short (split-string-every text typepad-split-size))
               (setq typepad-total-paragraph (length typepad-short)))))
-        (if (> (car (car n)) 0)
-          (progn
-            (setq typepad-current-paragraph (car (car n)))
-            (typepad-send-text))
-          (message "无记录"))
+        (let ((para (car (car n))))
+          (if (> para 0)
+            (progn
+              (setq typepad-current-paragraph para)
+              (typepad-send-next))
+            (message "无记录")))
         (sqlite-close tp-db)
         ))
     (progn

@@ -65,5 +65,6 @@
         (progn
           (list choice (cl-first results)))
         '(choice results)))))
-;;; typepad-lib.el end here
+
 (provide 'typepad-lib)
+;;; typepad-lib.el ends here

@@ -87,5 +87,5 @@
     (add-hook 'post-command-hook #'tp-pyim-clear-when-buffer-beg nil t)))
 
 
-;;; typepad-pyim.el end here
 (provide 'typepad-pyim)
+;;; typepad-pyim.el ends here
