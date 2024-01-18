@@ -1,12 +1,32 @@
 # TypePad.el
-Emacs 内的跟打器，目前处于开发中，可以进行简单的测试
-## 使用
-git clone TypePad 到本地，然后：
-
+Emacs 内的跟打器
+## Installation
+如果使用的 `use-package` 版本支持 `:vc`
 ```emacs-lisp
-(add-to-list 'load-path "/path/to/TypePad")
-(require 'typepad)
+(use-package typepad
+  :vc (:url "https://github.com/welandx/TypePad.el"
+        :branch master))
 ```
+
+## Usage
+1. 设置 `typepad-text-path`, 发文的文本所在目录
+2. `M-x typepad-create-sqlite`, 创建数据库
+3. `typepad-load-dir`, 加载路径
+4. `typepad-create-window`, 创建窗口
+5. `typepad-load`, 开始发文
+6. 如果要继续上次的发文 `typepad-continue-send`
+7. 切换 buffer 后或切出后继续 `typepad-focus-return`
+   
+   恢复窗口 `typepad-re-window`
+
+### Customization
+1. `tp-load-short` 和 `tp-load-long` 提供两种预设
+2. `typepad-key-rate-goal` 击键目标
+
+    `typepad-use-key-rate-goal` 是否使用击键目标
+3. `typepad-key-acc-goal` 键准目标
+4. `typepad-split-size` 分段大小 `tp-set-split` 设置该值
+5. `typepad-randomp` 是否乱序全文 `typepad-auto-next` 是否自动下一段
 
 ## RoadMap
 详见 [Design](Design.org)
