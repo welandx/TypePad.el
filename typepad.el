@@ -236,7 +236,7 @@
     (when use-acc
       (setq acc-passed (= typepad-key-acc 1)))
     (when use-rate
-      (setq rate-passed (> typepad-key-rate typepad-key-rate-goal)))
+      (setq rate-passed (> (typepad-get-key-rate) typepad-key-rate-goal)))
     (and acc-passed rate-passed)))
 
 ;; redraw readonly buffer
@@ -263,9 +263,9 @@
         (setq typepad-code-len (typepad-pyim-code-len))
         (message "第 %d 段 速度: %.2f 键准: %.2f%% 击键: %.3f 码长: %.3f [%s] %d/%d"
           typepad-current-paragraph
-          typepad-speed
+          (typepad-get-speed)
           (* typepad-key-acc 100)
-          typepad-key-rate
+          (typepad-get-key-rate)
           typepad-code-len
           typepad-name
           typepad-current-paragraph
@@ -435,9 +435,9 @@
         "speed, KeyAcc, CodeLen, Paragraph, DEL, Time) VALUES "
         (format "('%s', '%s', %f, %f, %f, %f, %d, %d, %f);"
           typepad-current-hash tp-article-hash
-          typepad-key-rate typepad-speed typepad-key-acc
-          typepad-code-len typepad-current-paragraph tp-pyim-delete
-          (time-to-seconds typepad-time-duration))))
+          (typepad-get-key-rate) (typepad-get-speed) typepad-key-acc
+          typepad-code-len typepad-current-paragraph (typepad-get-del)
+          (time-to-seconds (typepad-get-duration)))))
     (sqlite-close tp-db)))
 
 (defun typepad-sql-article ()

@@ -4,6 +4,9 @@
 
 (defvar tp-pyim-delete 0)
 
+(defun typepad-get-del ()
+  tp-pyim-delete)
+
 (defun pyim-count-key (orig-fun &rest args)
   "count key press times."
   (setq pyim--key-press-count (1+ pyim--key-press-count))

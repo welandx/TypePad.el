@@ -18,6 +18,15 @@
 (defvar typepad-timer 'nil
   "计时器")
 
+(defun typepad-get-key-rate ()
+  typepad-key-rate)
+
+(defun typepad-get-speed ()
+  typepad-speed)
+
+(defun typepad-get-duration ()
+  typepad-time-duration)
+
 ;; `FIXME' timer should start if no timer start
 ;; `Note' (cancel-function-timers 'typepad-timer-func) can cancel all timer
 (defun typepad-start-timer ()
