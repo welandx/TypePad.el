@@ -91,11 +91,6 @@
     (setq typepad-timer (run-at-time t 0.1 'typepad-timer-func)))
   (read-only-mode -1))
 
-;; (add-hook 'typepad-mode-hook
-;;   (lambda () (buffer-focus-out-callback (lambda (buf)
-;;                                            (typepad-focus-out buf)))
-;;     (add-function :after after-focus-change-function
-;;       (lambda (buf) (typepad-focus-out buf)))))
 
 (provide 'typepad-time)
 ;;; typepad-time.el ends here
