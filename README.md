@@ -10,8 +10,7 @@ Emacs 内的跟打器
 或使用 `straight`
 ```emacs-lisp
 (straight-use-package '(typepad :type git :host github
-                         :repo "welandx/TypePad.el"
-                         :files (:defaults "buffer-focus-hook/*.el")))
+                         :repo "welandx/TypePad.el"))
 ```
 ## Usage
 1. 设置 `typepad-text-path`, 发文的文本所在目录

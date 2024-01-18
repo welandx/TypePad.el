@@ -16,7 +16,7 @@
   - [X] 随机已发内容
   - [X] 随机全文
 - [X] hook buffer local
-- [ ] 调整 hook 顺序
+- [X] 调整 hook 顺序
 - [X] 键准数据
 ** design
 *** diff
@@ -55,6 +55,11 @@
 1. 分段发文
    - 按长度分割 str 存至 list
    - 手动下一段/上一段
+
+     - [X] readonly buffer 中发下一段的时自动跳转，且解除 readonly
+
+     - [X] 光标在开头时不应触发
+     
    - 达标后自动下一段
      - 是否需要达标
      

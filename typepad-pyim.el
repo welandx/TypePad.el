@@ -7,13 +7,13 @@
 (defun typepad-get-del ()
   tp-pyim-delete)
 
+(defun typepad-get-key ()
+  pyim--key-press-count)
+
 (defun pyim-count-key (orig-fun &rest args)
   "count key press times."
   (setq pyim--key-press-count (1+ pyim--key-press-count))
-  (when (= pyim--key-press-count 1)
-    (setq typepad-init-time (current-time))
-    (typepad-timer-func)
-    (setq typepad-timer (run-with-idle-timer 0.1 t 'typepad-timer-func)))
+  (typepad-start-timer)
   (apply orig-fun args))
 
 (defun tp-record-del (orig-fun &rest args)
@@ -28,7 +28,7 @@
 (advice-add 'pyim-delete-backward-char :around #'tp-record-del)
 (advice-add 'pyim-delete-forward-char :around #'pyim-count-key)
 
-(defun pyim--key-press-count-clear-when-del ()
+(defun pyim--key-press-count-when-del ()
   "`pyim--key-press-count' when key DEL press."
   (when (eq last-command-event ?\d)
     (setq tp-pyim-delete (1+ tp-pyim-delete))
@@ -36,10 +36,12 @@
 
 (add-hook 'typepad-mode-hook
   (lambda ()
-    (add-hook 'pre-command-hook #'pyim--key-press-count-clear-when-del nil t)))
+    (add-hook 'pre-command-hook #'pyim--key-press-count-when-del nil t)))
 
 (defun pyim--key-press-count-letter ()
   "count++ when key `a-z' or `A-Z' press."
+  (when (= (point) (point-min))
+    (setq tp-pyim-delete 0))
   (when (number-or-marker-p last-command-event)
     (when (and (>= last-command-event ?A)
             (<= last-command-event ?Z))

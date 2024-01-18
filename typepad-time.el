@@ -31,7 +31,7 @@
 ;; `Note' (cancel-function-timers 'typepad-timer-func) can cancel all timer
 (defun typepad-start-timer ()
   "Start timer when typepad-mode is enabled"
-  (when (= pyim--key-press-count 1)
+  (when (= (typepad-get-key) 1)
     (setq typepad-init-time (current-time))
     (typepad-timer-func)
     (unless (bound-and-true-p typepad-timer)
@@ -40,7 +40,7 @@
       (timer-set-time typepad-timer '(0.1 repeat))
       (timer-activate typepad-timer))))
 
-(add-hook 'typepad-mode-hook 'typepad-start-timer)
+(add-hook 'typepad-mode-hook 'typepad-start-timer) ;; `FIXME' seems not used
 
 (defun typepad-timer-func ()
   "时间计算"
@@ -50,7 +50,7 @@
   (let ((time (time-to-seconds typepad-time-duration))
          (words (/ (string-width (buffer-string)) 2.00)))
     (setq typepad-speed (* 60 (/ words time)))
-    (setq typepad-key-rate (/ (float pyim--key-press-count) time))))
+    (setq typepad-key-rate (/ (float (typepad-get-key)) time))))
 
 ;; display key rate in mode line
 (defun get-key-rate ()
@@ -69,7 +69,6 @@
     (setq typepad-time-duration 0)
     (setq typepad-key-rate 0.0)
     (setq typepad-speed 0)
-    (setq tp-pyim-delete 0) ;; clear delete `FIXME' delete should be cleared when post-command
     ;; kill timer
     (cancel-function-timers 'typepad-timer-func)))
 
@@ -77,12 +76,16 @@
   (lambda ()
     (add-hook 'post-self-insert-hook 'typepad-time-clear nil t)))
 
-(defun typepad-focus-out (buf)
-  (when typepad-timer
-    (cancel-function-timers 'typepad-timer-func)
-    (with-current-buffer buf
-      (read-only-mode 1))
-    (setq typepad-timer nil)))
+(defun typepad-focus-out (buf r-buf)
+  (let ((r-point-max (with-current-buffer r-buf
+                       (point-max))))
+    (unless (or (= (point) (point-min))
+              (= (point) r-point-max))
+      (when typepad-timer
+        (cancel-function-timers 'typepad-timer-func)
+        (with-current-buffer buf
+          (read-only-mode 1))
+        (setq typepad-timer nil)))))
 
 (defun typepad-focus-return ()
   (interactive)

@@ -364,6 +364,8 @@
 (defun typepad-send-next ()
   "发下一段"
   (interactive)
+  (if (string= (buffer-name) readonly-buffer-name)
+    (other-window 1))
   (let ((current typepad-current-paragraph))
     (if (<= typepad-total-paragraph current)
       (message "当前已是最后一段")
@@ -375,6 +377,8 @@
 (defun typepad-send-prev ()
   "发上一段"
   (interactive)
+  (if (string= (buffer-name) readonly-buffer-name)
+    (other-window 1))
   (let ((current typepad-current-paragraph))
     (if (eq current 1)
       (message "当前已是第一段")
@@ -386,6 +390,8 @@
 (defun typepad-send-nth ()
   "发第n段"
   (interactive)
+  (if (string= (buffer-name) readonly-buffer-name)
+    (other-window 1))
   (let ((number (read-number "请输入段数: ")))
     (setq typepad-current-paragraph number)
     (typepad-send-text)))
@@ -512,12 +518,13 @@ ORDER BY id DESC LIMIT 1;" hash))))
 (defun typepad-decode (ind)
   (read (base64-decode-string ind)))
 
-(let ((buf writable-buffer-name))
+(let ((buf writable-buffer-name)
+       (r-buf readonly-buffer-name))
   (add-hook 'typepad-mode-hook
     (lambda ()
-      (buffer-focus-out-callback (lambda () (typepad-focus-out buf)))
+      (buffer-focus-out-callback (lambda () (typepad-focus-out buf r-buf)))
       (add-function :after after-focus-change-function
-        (lambda () (typepad-focus-out buf))))))
+        (lambda () (typepad-focus-out buf r-buf))))))
 
 
 (provide 'typepad)
