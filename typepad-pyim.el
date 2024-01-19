@@ -14,6 +14,7 @@
   "count key press times."
   (setq pyim--key-press-count (1+ pyim--key-press-count))
   (typepad-start-timer)
+  ;; (typepad-timer-func)
   (apply orig-fun args))
 
 (defun tp-record-del (orig-fun &rest args)
@@ -54,13 +55,13 @@
   (lambda ()
     (add-hook 'post-command-hook #'pyim--key-press-count-letter nil t)))
 
-(defun pyim--key-press-count-display ()
-  "Display `pyim--key-press-count' in mode-line at `typepad-mode'."
-  (setq mode-line-format
-                (append mode-line-format
-                        '((:eval (format " PYIM: %d 次按键" pyim--key-press-count))))))
+;; (defun pyim--key-press-count-display ()
+;;   "Display `pyim--key-press-count' in mode-line at `typepad-mode'."
+;;   (setq mode-line-format
+;;                 (append mode-line-format
+;;                         '((:eval (format " PYIM: %d 次按键" pyim--key-press-count))))))
 
-(add-hook 'typepad-mode-hook #'pyim--key-press-count-display)
+;; (add-hook 'typepad-mode-hook #'pyim--key-press-count-display)
 
 (defun pyim-autoselector--xingma (split-length entered candidates last-candidates)
   "`pyim-autoselector-xingma' 内部使用的函数。"

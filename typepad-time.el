@@ -12,7 +12,7 @@
 (defvar typepad-key-rate 0.0
   "击键速度, 每秒击键数")
 
-(defvar typepad-speed 'nil
+(defvar typepad-speed '0.0
   "输入速度, 每分钟输入的字数")
 
 (defvar typepad-timer 'nil
@@ -34,11 +34,14 @@
   (when (= (typepad-get-key) 1)
     (setq typepad-init-time (current-time))
     (typepad-timer-func)
-    (unless (bound-and-true-p typepad-timer)
-      (setq typepad-timer (timer-create))
-      (timer-set-function typepad-timer 'typepad-timer-func)
-      (timer-set-time typepad-timer '(0.1 repeat))
-      (timer-activate typepad-timer))))
+    (unless typepad-timer
+      (setq typepad-timer (run-at-time t 0.6 'typepad-timer-func)))
+    ;; (unless (bound-and-true-p typepad-timer)
+    ;;   (setq typepad-timer (timer-create))
+    ;;   (timer-set-function typepad-timer 'typepad-timer-func)
+    ;;   (timer-set-time typepad-timer '(0.1 repeat))
+    ;;   (timer-activate typepad-timer))
+    ))
 
 (add-hook 'typepad-mode-hook 'typepad-start-timer) ;; `FIXME' seems not used
 
@@ -50,16 +53,27 @@
   (let ((time (time-to-seconds typepad-time-duration))
          (words (/ (string-width (buffer-string)) 2.00)))
     (setq typepad-speed (* 60 (/ words time)))
-    (setq typepad-key-rate (/ (float (typepad-get-key)) time))))
+    (setq typepad-key-rate (/ (float (typepad-get-key)) time)))
+  (force-mode-line-update t))
+
+(defface typepad-mode-line-face
+  '((t (:foreground "black"
+         :box "grey"
+         :background "#f0d6ff")))
+  "face for typepad mode-line info")
 
 ;; display key rate in mode line
 (defun get-key-rate ()
   "Get key rate"
-  (format " %.3f keys/s" typepad-key-rate))
+  (format " 击键: %.3f 速度: %.2f" typepad-key-rate typepad-speed))
 
-(add-hook 'typepad-mode-hook
+(add-hook 'typepad-readonly-mode-hook
   (lambda ()
-    (setq-local mode-line-format (cons '(:eval (get-key-rate)) mode-line-format))))
+    (setq-local mode-line-format
+      (cons '(:eval
+               (propertize (get-key-rate)
+                 'face 'typepad-mode-line-face))
+        mode-line-format))))
 
 (defun typepad-time-clear ()
   "Clear time when at begin of buffer"
@@ -91,7 +105,7 @@
   (interactive)
   (setq typepad-init-time (time-subtract (current-time) typepad-time-duration))
   (unless typepad-timer
-    (setq typepad-timer (run-at-time t 0.1 'typepad-timer-func)))
+    (setq typepad-timer (run-at-time t 0.6 'typepad-timer-func)))
   (read-only-mode -1))
 
 

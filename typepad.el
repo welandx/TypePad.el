@@ -262,6 +262,7 @@
     (if (and (equal typepad-char-num (string-width input-text))
           (equal last-char last-readonly))
       (progn
+        (typepad-timer-func)
         (setq typepad-key-acc (typepad-pyim-key-acc))
         (setq typepad-code-len (typepad-pyim-code-len typepad-char-num))
         (message "第 %d 段 速度: %.2f 键准: %.2f%% 击键: %.3f 码长: %.3f [%s] %d/%d"
