@@ -57,15 +57,14 @@
   (force-mode-line-update t))
 
 (defface typepad-mode-line-face
-  '((t (:foreground "black"
-         :box "grey"
-         :background "#f0d6ff")))
+  '((t (:box "grey"
+         :inherit highlight)))
   "face for typepad mode-line info")
 
 ;; display key rate in mode line
 (defun get-key-rate ()
   "Get key rate"
-  (format " 击键: %.3f 速度: %.2f" typepad-key-rate typepad-speed))
+  (format " 击键: %.3f 速度: %.2f " typepad-key-rate typepad-speed))
 
 (add-hook 'typepad-readonly-mode-hook
   (lambda ()
@@ -95,8 +94,9 @@
   (let ((r-point-max (with-current-buffer r-buf
                        (point-max))))
     (unless (or (= (point) (point-min))
-              (= (point) r-point-max))
+              (= (point) r-point-max)) ;; `ISSUE' ?
       (when typepad-timer
+        (typepad-timer-func)
         (cancel-function-timers 'typepad-timer-func)
         (with-current-buffer buf
           (read-only-mode 1))

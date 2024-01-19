@@ -120,16 +120,16 @@
 
 (defvar typepad-current-hash nil)
 
-(defvar tp-article-hash nil)
+(defvar typepad-article-hash nil)
 
 (defvar typepad-indices '())
 
 (defface typepad-diff-face
-  '((t (:background "red")))
+  '((t (:inherit diff-removed)))
   "Face for different text.")
 
 (defface typepad-same-face
-  '((t (:background "green")))
+  '((t (:inherit diff-added)))
   "Face for same text.")
 
 (define-derived-mode typepad-mode fundamental-mode
@@ -149,16 +149,14 @@
   (setq-local cursor-type nil)
   (setq-local cursor-in-non-selected-windows nil))
 
-;; `FIXME' add prefix
-(defun random-sending-text ()
+(defun typepad-random-sending-text ()
   "Randomize the sending text."
   (interactive)
   (let ((sending-text-list (split-string sending-text "")))
     (key-quiz--shuffle-list sending-text-list)
     (setq sending-text (mapconcat 'identity sending-text-list ""))))
 
-;; `FIXME' add prefix
-(defun random-all-text (txt)
+(defun typepad-random-all-text (txt)
   "Randomize the loaded article"
   (interactive)
   (let* ((txt-list (split-string txt "")))
@@ -286,7 +284,7 @@
                 (other-window 1)))
             (progn
               (erase-buffer)
-              (random-sending-text)
+              (typepad-random-sending-text)
               (typepad-redraw-readonly-buffer)))
         ))))
 
@@ -294,7 +292,7 @@
           (lambda ()
             (add-hook 'post-self-insert-hook 'typepad-paragraph-end nil t)))
 
-(defun tp-load-long ()
+(defun typepad-load-long ()
   "设置标准为长文模式"
   (interactive)
   (setq typepad-auto-next t)
@@ -303,7 +301,7 @@
   (setq typepad-use-key-rate-goal nil)
   (setq typepad-randomp nil))
 
-(defun tp-load-short ()
+(defun typepad-load-short ()
   "设置标准为短文模式"
   (interactive)
   (setq typepad-auto-next nil)
@@ -327,14 +325,14 @@
                       (buffer-string))))
     (typepad-hash-article short-text)
     (if typepad-randomp
-      (setq short-text (random-all-text short-text))
+      (setq short-text (typepad-random-all-text short-text))
       (typepad-sql-indices-save '(1)))
     (setq typepad-short (split-string-every short-text typepad-split-size))
     (setq typepad-total-paragraph (length typepad-short))
     (typepad-sql-article)
     (typepad-send-text)))
 
-(defun tp-set-split ()
+(defun typepad-set-split ()
   "设置每段字数"
   (interactive)
   (let ((n (read-number "请输入每段字数: ")))
@@ -411,13 +409,14 @@
   (let* ((size typepad-split-size)
           (input (concat (string size) text))
           (hash (secure-hash 'sha256 input)))
-    (setq tp-article-hash hash)
+    (setq typepad-article-hash hash)
     hash))
 
-
+;;;###autoload
 (defun typepad-create-sqlite ()
   "Create sqlite database."
-  (let ((tp-db (sqlite-open  typepad-db-path)))
+  (unless (file-exists-p typepad-db-path)
+    (let ((tp-db (sqlite-open  typepad-db-path)))
     (sqlite-execute tp-db
       (concat
         "CREATE TABLE IF NOT EXISTS article "
@@ -433,7 +432,7 @@
       (concat
         "CREATE TABLE IF NOT EXISTS sort "
         "(hash TEXT, randomp INTEGER, indices TEXT DEFAULT 'nil');"))
-    (sqlite-close tp-db)))
+    (sqlite-close tp-db))))
 
 (defun typepad-sql-stat ()
   "Save statistics to sqlite."
@@ -442,7 +441,7 @@
       (concat "INSERT INTO statistics (hash, ArticleHash, KeyRate, "
         "speed, KeyAcc, CodeLen, Paragraph, DEL, Time) VALUES "
         (format "('%s', '%s', %f, %f, %f, %f, %d, %d, %f);"
-          typepad-current-hash tp-article-hash
+          typepad-current-hash typepad-article-hash
           (typepad-get-key-rate) (typepad-get-speed) typepad-key-acc
           typepad-code-len typepad-current-paragraph (typepad-get-del)
           (time-to-seconds (typepad-get-duration)))))
@@ -452,11 +451,11 @@
   "Save article to sqlite."
   (let* ((tp-db (sqlite-open  typepad-db-path))
           (hashp (sqlite-execute tp-db
-                   (format "SELECT COUNT(*) FROM article WHERE hash = '%s'" tp-article-hash)))
+                   (format "SELECT COUNT(*) FROM article WHERE hash = '%s'" typepad-article-hash)))
           (val (car (car hashp))))
     (if (= val 0) (sqlite-execute tp-db
                 (concat "INSERT INTO article (hash, name, length, split) VALUES "
-                  (format "('%s', '%s', %d, %d);" tp-article-hash typepad-name
+                  (format "('%s', '%s', %d, %d);" typepad-article-hash typepad-name
                     typepad-total-paragraph typepad-split-size))))
     (sqlite-close tp-db)))
 
@@ -466,7 +465,7 @@
           (tp-db (sqlite-open  typepad-db-path)))
     (sqlite-execute tp-db
       (format "INSERT INTO sort (hash, randomp, indices) VALUES ('%s', %d , '%s')"
-        tp-article-hash (if typepad-randomp 1 0) encoded)
+        typepad-article-hash (if typepad-randomp 1 0) encoded)
       )))
 
 (defun typepad-continue-send ()
@@ -526,6 +525,16 @@ ORDER BY id DESC LIMIT 1;" hash))))
       (buffer-focus-out-callback (lambda () (typepad-focus-out buf r-buf)))
       (add-function :after after-focus-change-function
         (lambda () (typepad-focus-out buf r-buf))))))
+
+;;;###autoload
+(defun typepad ()
+  (interactive)
+  (typepad-load-dir)
+  (typepad-create-sqlite)
+  (if (and (buffer-live-p (get-buffer readonly-buffer-name))
+        (buffer-live-p (get-buffer writable-buffer-name)))
+    (typepad-re-window)
+    (typepad-create-window)))
 
 
 (provide 'typepad)

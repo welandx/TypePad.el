@@ -2,10 +2,10 @@
 
 (defvar pyim--key-press-count 0)
 
-(defvar tp-pyim-delete 0)
+(defvar typepad-pyim-delete 0)
 
 (defun typepad-get-del ()
-  tp-pyim-delete)
+  typepad-pyim-delete)
 
 (defun typepad-get-key ()
   pyim--key-press-count)
@@ -17,22 +17,22 @@
   ;; (typepad-timer-func)
   (apply orig-fun args))
 
-(defun tp-record-del (orig-fun &rest args)
+(defun typepad-record-del (orig-fun &rest args)
   "count del"
-  (setq tp-pyim-delete (1+ tp-pyim-delete))
+  (setq typepad-pyim-delete (1+ typepad-pyim-delete))
   (apply orig-fun args))
 
 (advice-add 'pyim-self-insert-command :around #'pyim-count-key)
 (advice-add 'pyim-select-word :around #'pyim-count-key)
 (advice-add 'pyim-select-word-by-number :around #'pyim-count-key)
 (advice-add 'pyim-delete-backward-char :around #'pyim-count-key)
-(advice-add 'pyim-delete-backward-char :around #'tp-record-del)
+(advice-add 'pyim-delete-backward-char :around #'typepad-record-del)
 (advice-add 'pyim-delete-forward-char :around #'pyim-count-key)
 
 (defun pyim--key-press-count-when-del ()
   "`pyim--key-press-count' when key DEL press."
   (when (eq last-command-event ?\d)
-    (setq tp-pyim-delete (1+ tp-pyim-delete))
+    (setq typepad-pyim-delete (1+ typepad-pyim-delete))
     (setq pyim--key-press-count (+ pyim--key-press-count 1))))
 
 (add-hook 'typepad-mode-hook
@@ -42,7 +42,7 @@
 (defun pyim--key-press-count-letter ()
   "count++ when key `a-z' or `A-Z' press."
   (when (= (point) (point-min))
-    (setq tp-pyim-delete 0))
+    (setq typepad-pyim-delete 0))
   (when (number-or-marker-p last-command-event)
     (when (and (>= last-command-event ?A)
             (<= last-command-event ?Z))
@@ -84,20 +84,20 @@
    (t nil)))
 
 ;; 当光标位于 buffer 的开头时, 清除 pyim--key-press-count
-(defun tp-pyim-clear-when-buffer-beg ()
+(defun typepad-pyim-clear-bobp ()
   "Clear `pyim--key-press-count' when buffer begin."
   (when (and (= (point-min) (point-max))
           (= (point) (point-min)))
-    (setq tp-pyim-delete 0) ;; clear del
+    (setq typepad-pyim-delete 0) ;; clear del
     (setq pyim--key-press-count 0)))
 
 (add-hook 'typepad-mode-hook
   (lambda ()
-    (add-hook 'post-command-hook #'tp-pyim-clear-when-buffer-beg nil t)))
+    (add-hook 'post-command-hook #'typepad-pyim-clear-bobp nil t)))
 
 (defun typepad-pyim-key-acc ()
   "计算键准"
-  (let ((key-acc (- 1 (/ (float tp-pyim-delete)
+  (let ((key-acc (- 1 (/ (float typepad-pyim-delete)
                         (float pyim--key-press-count)))))
     key-acc))
 

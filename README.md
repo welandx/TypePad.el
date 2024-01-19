@@ -24,12 +24,12 @@ Emacs 内的跟打器
    恢复窗口 `typepad-re-window`
 
 ### Customization
-1. `tp-load-short` 和 `tp-load-long` 提供两种预设
+1. `typepad-load-short` 和 `typepad-load-long` 提供两种预设
 2. `typepad-key-rate-goal` 击键目标
 
     `typepad-use-key-rate-goal` 是否使用击键目标
 3. `typepad-key-acc-goal` 键准目标
-4. `typepad-split-size` 分段大小 `tp-set-split` 设置该值
+4. `typepad-split-size` 分段大小 `typepad-set-split` 设置该值
 5. `typepad-randomp` 是否乱序全文 `typepad-auto-next` 是否自动下一段
 
 ## RoadMap

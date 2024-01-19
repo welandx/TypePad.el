@@ -45,9 +45,11 @@
 1. 第一次 type 时，启动一个 timer，每0.1s计录一次当前的时间
 2. 每一次 type 时，计录一次时间
 
-目前用的第一种，对现在显示方式两者没什么区别
+目前用的第一种， +对现在显示方式两者没什么区别+
 
-buffer-string 为 nil 时不应该启动 timer
+- [ ] buffer-string 为 nil 时不应该启动 timer
+
+- [ ] 跳转 buffer 后应该 cancel timer
 *** 载文-发文
 **** 载文形式
 - 短文: 无空格 txt, 全篇直接读为 str
