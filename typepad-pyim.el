@@ -86,7 +86,8 @@
 ;; 当光标位于 buffer 的开头时, 清除 pyim--key-press-count
 (defun tp-pyim-clear-when-buffer-beg ()
   "Clear `pyim--key-press-count' when buffer begin."
-  (when (= (point) (point-min))
+  (when (and (= (point-min) (point-max))
+          (= (point) (point-min)))
     (setq tp-pyim-delete 0) ;; clear del
     (setq pyim--key-press-count 0)))
 

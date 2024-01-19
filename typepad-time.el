@@ -77,7 +77,8 @@
 
 (defun typepad-time-clear ()
   "Clear time when at begin of buffer"
-  (when (= (point) (point-min))
+  (when (and (= (point-min) (point-max))
+          (= (point) (point-min)))
     (setq typepad-init-time (current-time))
     (setq typepad-current-time (current-time))
     (setq typepad-time-duration 0)
