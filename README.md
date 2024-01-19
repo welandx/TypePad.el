@@ -14,14 +14,10 @@ Emacs 内的跟打器
 ```
 ## Usage
 1. 设置 `typepad-text-path`, 发文的文本所在目录
-2. `M-x typepad-create-sqlite`, 创建数据库
-3. `typepad-load-dir`, 加载路径
-4. `typepad-create-window`, 创建窗口
-5. `typepad-load`, 开始发文
-6. 如果要继续上次的发文 `typepad-continue-send`
-7. 切换 buffer 后或切出后继续 `typepad-focus-return`
-   
-   恢复窗口 `typepad-re-window`
+2. `M-x typepad`, 这一步会 load-dir 并创建 db
+3. `typepad-load`, 开始发文
+4. 如果要继续上次的发文 `typepad-continue-send`
+5. 切换 buffer 后或切出后继续 `typepad-focus-return`
 
 ### Customization
 1. `typepad-load-short` 和 `typepad-load-long` 提供两种预设
@@ -72,6 +68,7 @@ Emacs 内的跟打器
 - [x] fix timer
 - [x] db path
 - [ ] popup transient
+- [ ] use bobp?
 ## 演示
 设置了击键目标为4，第一段为击键达标跳转到发文区，调用 `typepad-send-next` 发下一段
 

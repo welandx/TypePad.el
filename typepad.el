@@ -4,7 +4,7 @@
 
 ;; Author: welandx <welandx@skiff.com>
 ;; URL: https://github.com/welandx/TypePad.el
-;; Version: 0.2.2
+;; Version: 0.2.3
 ;; Package-Requires: ((emacs "29.1") (pyim))
 ;; Keywords: typing
 
