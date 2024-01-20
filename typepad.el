@@ -59,12 +59,12 @@
   :type 'number)
 
 ;; whether or not use key rate goal
-(defcustom typepad-use-key-rate-goal t
+(defcustom typepad-use-key-rate-goal nil
   "Whether or not use key rate goal."
   :group 'typepad
   :type 'boolean)
 
-(defcustom typepad-use-key-acc-goal t
+(defcustom typepad-use-key-acc-goal nil
   "Whether or not use key acc goal."
   :group 'typepad
   :type 'boolean)
@@ -96,7 +96,7 @@
   :group 'typepad
   :type 'integer)
 
-(defcustom typepad-randomp t
+(defcustom typepad-randomp nil
   "是否乱序全文"
   :group 'typepad
   :type 'boolean)
@@ -134,8 +134,6 @@
 
 (define-derived-mode typepad-mode fundamental-mode
   "typepad"
-  "Major mode for typepad."
-  (setq-local cursor-type 'bar)
   (setq-local visual-fill-column-center-text t)
   ;; set font height local
   (setq-local face-remapping-alist '((default (:height 280)))))
@@ -525,6 +523,24 @@ ORDER BY id DESC LIMIT 1;" hash))))
       (buffer-focus-out-callback (lambda () (typepad-focus-out buf r-buf)))
       (add-function :after after-focus-change-function
         (lambda () (typepad-focus-out buf r-buf))))))
+
+(defun typepad-print (name split)
+  (interactive)
+  (let* ((tp-db (sqlite-open typepad-db-path))
+          (res (sqlite-execute tp-db
+                 (format "SELECT s.* FROM statistics s 
+JOIN article a ON s.ArticleHash = a.hash 
+WHERE a.name = '%s' AND a.split = %d;
+" name split))))
+    ))
+
+(defun typepad-exit ()
+  (interactive)
+  (delete-other-windows)
+  (when (get-buffer readonly-buffer-name)
+    (kill-buffer readonly-buffer-name))
+  (when (get-buffer writable-buffer-name)
+    (kill-buffer writable-buffer-name)))
 
 ;;;###autoload
 (defun typepad ()

@@ -91,16 +91,18 @@
     (add-hook 'post-self-insert-hook 'typepad-time-clear nil t)))
 
 (defun typepad-focus-out (buf r-buf)
-  (let ((r-point-max (with-current-buffer r-buf
-                       (point-max))))
-    (unless (or (= (point) (point-min))
-              (= (point) r-point-max)) ;; `ISSUE' ?
-      (when typepad-timer
-        (typepad-timer-func)
-        (cancel-function-timers 'typepad-timer-func)
-        (with-current-buffer buf
-          (read-only-mode 1))
-        (setq typepad-timer nil)))))
+  (if (and (buffer-live-p (get-buffer readonly-buffer-name))
+        (buffer-live-p (get-buffer writable-buffer-name)))
+    (let ((r-point-max (with-current-buffer r-buf
+                         (point-max))))
+      (unless (or (= (point) (point-min))
+                (= (point) r-point-max)) ;; `ISSUE' ?
+        (when typepad-timer
+          (typepad-timer-func)
+          (cancel-function-timers 'typepad-timer-func)
+          (with-current-buffer buf
+            (read-only-mode 1))
+          (setq typepad-timer nil))))))
 
 (defun typepad-focus-return ()
   (interactive)

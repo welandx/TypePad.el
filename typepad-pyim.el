@@ -12,13 +12,19 @@
 
 (defun pyim-count-key (orig-fun &rest args)
   "count key press times."
-  (setq pyim--key-press-count (1+ pyim--key-press-count))
-  (typepad-start-timer)
+  (if  (eq (buffer-mode (current-buffer)) 'typepad-mode)
+    (setq pyim--key-press-count (1+ pyim--key-press-count))
+    (typepad-start-timer)
+    )
   ;; (typepad-timer-func)
   (apply orig-fun args))
 
 (defun typepad-record-del (orig-fun &rest args)
   "count del"
+  (if  (eq (buffer-mode (current-buffer)) 'typepad-mode)
+    (setq pyim--key-press-count (1+ pyim--key-press-count))
+    (typepad-start-timer)
+    )
   (setq typepad-pyim-delete (1+ typepad-pyim-delete))
   (apply orig-fun args))
 
