@@ -69,6 +69,7 @@
 
 ;; (add-hook 'typepad-mode-hook #'pyim--key-press-count-display)
 
+;; `FIXME' psearch?
 (defun pyim-autoselector--xingma (split-length entered candidates last-candidates)
   "`pyim-autoselector-xingma' 内部使用的函数。"
   (cond
@@ -89,9 +90,8 @@
          (setq pyim--key-press-count (- pyim--key-press-count 1)))) ;; 自动上屏时减去一次选择
    (t nil)))
 
-;; 当光标位于 buffer 的开头时, 清除 pyim--key-press-count
 (defun typepad-pyim-clear-bobp ()
-  "Clear `pyim--key-press-count' when buffer begin."
+  "当光标位于 buffer 的开头时, 清除 pyim--key-press-count"
   (when (and (= (point-min) (point-max))
           (= (point) (point-min)))
     (setq typepad-pyim-delete 0) ;; clear del

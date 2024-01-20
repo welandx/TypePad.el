@@ -306,8 +306,15 @@
   (setq typepad-split-size 10)
   (setq typepad-use-key-acc-goal t)
   (setq typepad-use-key-rate-goal t)
-  (setq typepad-key-rate-goal 6.00)
   (setq typepad-randomp t))
+
+(defun typepad-key-rate+ ()
+  (interactive)
+  (setq typepad-key-rate-goal (1+ typepad-key-rate-goal)))
+
+(defun typepad-key-rate- ()
+  (interactive)
+  (setq typepad-key-rate-goal (1- typepad-key-rate-goal)))
 
 (defun typepad-load-dir ()
   "Load all txt files in the directory."
