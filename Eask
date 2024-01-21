@@ -1,5 +1,5 @@
 (package "typepad"
-         "0.2.3"
+         "0.3.0"
          "typepad in Emacs")
 
 (website-url "https://github.com/welandx/TypePad.el")
