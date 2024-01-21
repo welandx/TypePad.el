@@ -603,6 +603,7 @@ ORDER BY id DESC LIMIT 1;" hash))))
 JOIN article a ON s.ArticleHash = a.hash 
 WHERE a.name = '%s' AND a.split = %d;
 " name split))))
+    (prin1-to-string res)
     ))
 
 (defun typepad-exit ()

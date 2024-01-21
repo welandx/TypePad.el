@@ -10,6 +10,8 @@
 (defun typepad-get-key ()
   pyim--key-press-count)
 
+(declare-function typepad-start-timer () "start timer")
+
 (defun pyim-count-key (orig-fun &rest args)
   "count key press times."
   (when  (eq major-mode 'typepad-mode)

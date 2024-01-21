@@ -27,6 +27,8 @@
 (defun typepad-get-duration ()
   typepad-time-duration)
 
+(declare-function typepad-get-key () "get key")
+
 ;; `FIXME' timer should start if no timer start
 ;; `Note' (cancel-function-timers 'typepad-timer-func) can cancel all timer
 (defun typepad-start-timer ()
@@ -98,8 +100,8 @@
     (add-hook 'post-self-insert-hook 'typepad-time-clear nil t)))
 
 (defun typepad-focus-out (buf r-buf)
-  (if (and (buffer-live-p (get-buffer readonly-buffer-name))
-        (buffer-live-p (get-buffer writable-buffer-name)))
+  (if (and (buffer-live-p (get-buffer buf))
+        (buffer-live-p (get-buffer r-buf)))
     (let ((r-point-max (with-current-buffer r-buf
                          (point-max))))
       (unless (or (= (point) (point-min))

@@ -55,7 +55,7 @@ Emacs 内的跟打器
 - [ ] 调整 hook 顺序
 - [x] 键准数据
 - [x] 速度数据
-- [ ] 依赖处理
+- [x] 依赖处理
 - [x] sqlite 储存数据
   - [x] 文章表
   - [x] 记录表
@@ -67,9 +67,11 @@ Emacs 内的跟打器
 - [x] 生成 Hash
 - [x] fix timer
 - [x] db path
-- [ ] popup transient
+- [x] popup transient
 - [x] 重打
-- [ ] keymap
+- [x] keymap
+- [ ] 默认文本
+- [ ] 绘表
 ## 演示
 设置了击键目标为4，第一段为击键达标跳转到发文区，调用 `typepad-send-next` 发下一段
 
