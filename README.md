@@ -68,7 +68,8 @@ Emacs 内的跟打器
 - [x] fix timer
 - [x] db path
 - [ ] popup transient
-- [ ] use bobp?
+- [x] 重打
+- [ ] keymap
 ## 演示
 设置了击键目标为4，第一段为击键达标跳转到发文区，调用 `typepad-send-next` 发下一段
 

@@ -132,10 +132,15 @@
   '((t (:inherit diff-added)))
   "Face for same text.")
 
+(defvar typepad-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "<f5>") #'typepad-resend)
+    map)
+  "typepad 的 keymap")
+
 (define-derived-mode typepad-mode fundamental-mode
   "typepad"
   (setq-local visual-fill-column-center-text t)
-  ;; set font height local
   (setq-local face-remapping-alist '((default (:height 280)))))
 
 ;; define a mode for typepad readonly buffer
@@ -391,6 +396,16 @@
         (setq typepad-current-paragraph (1- current))
         (typepad-send-text)
         ))))
+
+(defun typepad-resend ()
+  (interactive)
+  (with-current-buffer writable-buffer-name
+    (if (/= (point-min) (point-max))
+      (progn
+        (read-only-mode -1)
+        (erase-buffer)
+        (typepad-time-clear)  )
+      (message "未开始"))))
 
 (defun typepad-send-nth ()
   "发第n段"
