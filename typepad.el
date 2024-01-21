@@ -33,6 +33,7 @@
 (require 'typepad-lib)
 (require 'typepad-pyim)
 (require 'typepad-time)
+(require 'typepad-transient)
 (require 'sqlite)
 
 (defgroup typepad ()
@@ -135,8 +136,19 @@
 (defvar typepad-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "<f5>") #'typepad-resend)
+    (define-key map (kbd "M-n") #'typepad-send-next)
+    (define-key map (kbd "M-p") #'typepad-send-prev)
+    (define-key map (kbd "M-s") #'typepad-prefix)
     map)
-  "typepad 的 keymap")
+  "typepad 跟打区的 keymap")
+
+(defvar typepad-readonly-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "n") #'typepad-send-next)
+    (define-key map (kbd "p") #'typepad-send-prev)
+    (define-key map (kbd "s") #'typepad-prefix)
+    map)
+  "typepad 发文区的 keymap")
 
 (define-derived-mode typepad-mode fundamental-mode
   "typepad"
@@ -349,6 +361,42 @@
   (let ((n (read-number "请输入每段字数: ")))
     (setq typepad-split-size n)))
 
+(defun typepad-toggle-random ()
+  "设置是否乱序"
+  (interactive)
+  (if typepad-randomp
+    (progn
+      (setq typepad-randomp nil)
+      (message "关闭乱序"))
+    (progn
+      (setq typepad-randomp t)
+      (message "开启乱序"))
+    ))
+
+(defun typepad-toggle-acc-goal ()
+  "设置是否使用键准目标"
+  (interactive)
+  (if typepad-use-key-acc-goal
+    (progn
+      (setq typepad-use-key-acc-goal nil)
+      (message "关闭键准目标"))
+    (progn
+      (setq typepad-use-key-acc-goal t)
+      (message "开启键准目标"))
+    ))
+
+(defun typepad-toggle-rate-goal ()
+  "设置是否使用击键目标"
+  (interactive)
+  (if typepad-use-key-rate-goal
+    (progn
+      (setq typepad-use-key-rate-goal nil)
+      (message "关闭速度目标"))
+    (progn
+      (setq typepad-use-key-rate-goal t)
+      (message "开启速度目标"))
+    ))
+
 ;; `FIXME' load-dir
 ;;;###autoload
 (defun typepad-load ()
@@ -374,12 +422,12 @@
 (defun typepad-send-next ()
   "发下一段"
   (interactive)
-  (if (string= (buffer-name) readonly-buffer-name)
-    (other-window 1))
   (let ((current typepad-current-paragraph))
     (if (<= typepad-total-paragraph current)
       (message "当前已是最后一段")
       (progn
+        (when (string= (buffer-name) readonly-buffer-name)
+          (other-window 1))
         (setq typepad-current-paragraph (1+ current))
         (typepad-send-text)
         ))))
@@ -387,12 +435,12 @@
 (defun typepad-send-prev ()
   "发上一段"
   (interactive)
-  (if (string= (buffer-name) readonly-buffer-name)
-    (other-window 1))
   (let ((current typepad-current-paragraph))
     (if (eq current 1)
       (message "当前已是第一段")
       (progn
+        (when (string= (buffer-name) readonly-buffer-name)
+          (other-window 1))
         (setq typepad-current-paragraph (1- current))
         (typepad-send-text)
         ))))
