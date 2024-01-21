@@ -86,6 +86,13 @@
     ;; kill timer
     (cancel-function-timers 'typepad-timer-func)))
 
+;; `FIXME' migrate above
+(defun typepad-time-end ()
+  (setq typepad-time-duration 0)
+  (setq typepad-key-rate 0.0)
+  (setq typepad-speed 0)
+  (cancel-function-timers 'typepad-timer-func))
+
 (add-hook 'typepad-mode-hook
   (lambda ()
     (add-hook 'post-self-insert-hook 'typepad-time-clear nil t)))
