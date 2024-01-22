@@ -82,7 +82,7 @@
 (defvar typepad-short nil
   "short text.")
 
-(defcustom typepad-text-path nil
+(defcustom typepad-text-path (xah-get-fullpath "txt")
   "path to text"
   :group 'typepad
   :type 'string)
@@ -276,7 +276,6 @@
           (equal last-char last-readonly))
       (progn
         (typepad-timer-func)
-        (typepad-time-end)
         (setq typepad-key-acc (typepad-pyim-key-acc))
         (setq typepad-code-len (typepad-pyim-code-len typepad-char-num))
         (message "第 %d 段 速度: %.2f 键准: %.2f%% 击键: %.3f 码长: %.3f [%s] %d/%d"
@@ -290,6 +289,7 @@
           typepad-total-paragraph)
         (typepad-hash)
         (typepad-sql-stat)
+        (typepad-time-end)
         (if (check-standards typepad-use-key-acc-goal
               typepad-use-key-rate-goal)
             (progn
@@ -595,15 +595,35 @@ ORDER BY id DESC LIMIT 1;" hash))))
       (add-function :after after-focus-change-function
         (lambda () (typepad-focus-out buf r-buf))))))
 
-(defun typepad-print (name split)
+;;;###autoload
+(defun typepad-print ()
   (interactive)
-  (let* ((tp-db (sqlite-open typepad-db-path))
+  (if (not typepad-article-list)
+    (typepad-load-dir))
+  (let* ((name (completing-read "name: " typepad-article-list))
+          (split (read-number "split: "))
+          (tp-db (sqlite-open typepad-db-path))
           (res (sqlite-execute tp-db
-                 (format "SELECT s.* FROM statistics s 
+                 (format "SELECT s.id, s.KeyRate, s.speed, s.KeyAcc, s.CodeLen, s.DEL, s.Time, s.Date FROM statistics s 
 JOIN article a ON s.ArticleHash = a.hash 
-WHERE a.name = '%s' AND a.split = %d;
+WHERE a.name = '%s' AND a.split = %d
+Order BY s.id DESC;
 " name split))))
-    (prin1-to-string res)
+    (with-current-buffer (get-buffer-create "*typepad-print*")
+      (read-only-mode -1)
+      (erase-buffer)
+      (insert (format "name: %s split: %d\n" name split))
+      (insert (format "%-5s %-10s %-10s %-10s %-10s %-10s %-10s %-10s\n"
+                "id" "KeyRate" "speed" "KeyAcc" "CodeLen" "DEL" "Time" "Date"))
+      (cl-loop for row in res
+        do (insert (format "%-5d %-10.2f %-10.2f %-10.2f %-10.2f %-10d %-10.2f %-10s\n"
+                    (elt row 0) (elt row 1) (elt row 2) (elt row 3) (elt row 4)
+                    (elt row 5) (elt row 6) (elt row 7))))
+      (switch-to-buffer "*typepad-print*")
+      (read-only-mode 1)
+      ;; go to the first line
+      (goto-char (point-min))
+      )
     ))
 
 (defun typepad-exit ()
