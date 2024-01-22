@@ -4,7 +4,7 @@
 
 ;; Author: welandx <welandx@skiff.com>
 ;; URL: https://github.com/welandx/TypePad.el
-;; Version: 0.3.0
+;; Version: 0.3.1
 ;; Package-Requires: ((emacs "29.1") (pyim))
 ;; Keywords: typing
 
@@ -35,6 +35,9 @@
 (require 'typepad-time)
 (require 'typepad-transient)
 (require 'sqlite)
+(unless (featurep 'diff-mode)
+  (require 'diff-mode))
+
 
 (defgroup typepad ()
   "Customize group for typepad, a typing practice tool."
@@ -82,7 +85,10 @@
 (defvar typepad-short nil
   "short text.")
 
-(defcustom typepad-text-path (xah-get-fullpath "txt")
+(defcustom typepad-text-path
+  (if (featurep 'straight)
+    (xah-get-fullpath "")
+    (xah-get-fullpath "txt"))
   "path to text"
   :group 'typepad
   :type 'string)
@@ -412,7 +418,6 @@
       (message "load")
       (typepad-load-dir))))
 
-;; send text
 (defun typepad-send-text ()
   "发文"
   (interactive)

@@ -8,7 +8,7 @@
   :key "T"
   :description "wave from macro definition"
   (interactive)
-  (message "Waves from a macro definition at: %s" (current-time-string)))
+  (message "?"))
 
 (transient-define-prefix typepad-prefix ()
   "Prefix typepad"
