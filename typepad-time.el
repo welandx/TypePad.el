@@ -63,8 +63,7 @@
          :inherit highlight)))
   "face for typepad mode-line info")
 
-;; display key rate in mode line
-(defun get-key-rate ()
+(defun typepad-display-key-rate ()
   "Get key rate"
   (format " 击键: %.3f 速度: %.2f " typepad-key-rate typepad-speed))
 
@@ -72,7 +71,7 @@
   (lambda ()
     (setq-local mode-line-format
       (cons '(:eval
-               (propertize (get-key-rate)
+               (propertize (typepad-display-key-rate)
                  'face 'typepad-mode-line-face))
         mode-line-format))))
 
@@ -90,10 +89,13 @@
 
 ;; `FIXME' migrate above
 (defun typepad-time-end ()
+  (setq typepad-init-time (current-time))
+  (setq typepad-current-time (current-time))
   (setq typepad-time-duration 0)
   (setq typepad-key-rate 0.0)
   (setq typepad-speed 0)
-  (cancel-function-timers 'typepad-timer-func))
+  (cancel-function-timers 'typepad-timer-func)
+  (setq typepad-timer nil))
 
 (add-hook 'typepad-mode-hook
   (lambda ()

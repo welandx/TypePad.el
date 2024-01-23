@@ -4,7 +4,7 @@
 
 ;; Author: welandx <welandx@skiff.com>
 ;; URL: https://github.com/welandx/TypePad.el
-;; Version: 0.3.1
+;; Version: 0.3.2
 ;; Package-Requires: ((emacs "29.1") (pyim))
 ;; Keywords: typing
 
@@ -43,13 +43,13 @@
   "Customize group for typepad, a typing practice tool."
   :group 'extensions)
 
-(defvar readonly-buffer-name "*发文区*"
+(defvar typepad-readonly-buffer "*发文区*"
   "The name of readonly buffer.")
 
-(defvar writable-buffer-name "*跟打区*"
+(defvar typepad-writable-buffer "*跟打区*"
   "The name of writable buffer.")
 
-(defvar sending-text "不者时今青任尽代形机"
+(defvar typepad-sending-text "不者时今青任尽代形机"
   "The char read from readonly buffer.")
 
 (defcustom typepad-key-rate-goal 4.00
@@ -173,9 +173,9 @@
 (defun typepad-random-sending-text ()
   "Randomize the sending text."
   (interactive)
-  (let ((sending-text-list (split-string sending-text "")))
+  (let ((sending-text-list (split-string typepad-sending-text "")))
     (key-quiz--shuffle-list sending-text-list)
-    (setq sending-text (mapconcat 'identity sending-text-list ""))))
+    (setq typepad-sending-text (mapconcat 'identity sending-text-list ""))))
 
 (defun typepad-random-all-text (txt)
   "Randomize the loaded article"
@@ -190,38 +190,38 @@
   "initialize window layout"
   (interactive)
   (delete-other-windows)
-  (let ((readonly-text sending-text))
-    (when (get-buffer readonly-buffer-name)
-      (kill-buffer readonly-buffer-name))
-    (when (get-buffer writable-buffer-name)
-      (kill-buffer writable-buffer-name))
+  (let ((readonly-text typepad-sending-text))
+    (when (get-buffer typepad-readonly-buffer)
+      (kill-buffer typepad-readonly-buffer))
+    (when (get-buffer typepad-writable-buffer)
+      (kill-buffer typepad-writable-buffer))
     (with-selected-window (split-window-below)
-      (switch-to-buffer (get-buffer-create writable-buffer-name))
+      (switch-to-buffer (get-buffer-create typepad-writable-buffer))
       (typepad-mode))
-    (with-current-buffer (get-buffer-create readonly-buffer-name)
+    (with-current-buffer (get-buffer-create typepad-readonly-buffer)
       (erase-buffer)
       (insert readonly-text)
       (goto-char (point-min))
       ;; (setq buffer-read-only t)
       (read-only-mode 1)
-      (switch-to-buffer readonly-buffer-name)
-      ;; (org-switch-to-buffer-other-window readonly-buffer-name)
+      (switch-to-buffer typepad-readonly-buffer)
+      ;; (org-switch-to-buffer-other-window typepad-readonly-buffer)
       (typepad-readonly-mode)
       (other-window 1))))
 
 (defun typepad-re-window ()
   (interactive)
   (delete-other-windows)
-  (switch-to-buffer readonly-buffer-name)
+  (switch-to-buffer typepad-readonly-buffer)
   (with-selected-window (split-window-below)
-    (switch-to-buffer writable-buffer-name))
+    (switch-to-buffer typepad-writable-buffer))
   (other-window 1))
 
 ;; `FIXME' def overlay for diff highlight
 (defun typepad-diff ()
   "Highlight the diff between readonly buffer and writable buffer."
   (interactive)
-  (with-current-buffer writable-buffer-name
+  (with-current-buffer typepad-writable-buffer
     (save-excursion
       (goto-char (point-min))
       (let ((input-list (split-string
@@ -229,7 +229,7 @@
                             (point-min) (point-max)) "" t))
              ;; (diff-range (point-max)) ;; `ISSUE' why?
              )
-        (with-current-buffer readonly-buffer-name
+        (with-current-buffer typepad-readonly-buffer
           (save-excursion
             (remove-overlays)
             (goto-char (point-min))
@@ -265,19 +265,20 @@
 (defun typepad-redraw-readonly-buffer ()
   "Redraw readonly buffer."
   (interactive)
-  (with-current-buffer readonly-buffer-name
+  (with-current-buffer typepad-readonly-buffer
     (read-only-mode -1)
     (erase-buffer)
-    (insert sending-text)
+    (insert typepad-sending-text)
     (setq typepad-char-num (string-width (buffer-string)))
-    (read-only-mode 1)))
+    (read-only-mode 1)
+    (typepad-readonly-mode)))
 
 ;; `FIXME'
 (defun typepad-paragraph-end ()
   "End of paragraph"
   (let ((input-text (buffer-string))
          (last-char (char-before))
-         (last-readonly (string-to-char (substring sending-text -1))))
+         (last-readonly (string-to-char (substring typepad-sending-text -1))))
     (if (and (equal typepad-char-num (string-width input-text))
           (equal last-char last-readonly))
       (progn
@@ -295,19 +296,20 @@
           typepad-total-paragraph)
         (typepad-hash)
         (typepad-sql-stat)
-        (typepad-time-end)
         (if (check-standards typepad-use-key-acc-goal
               typepad-use-key-rate-goal)
-            (progn
-              (typepad-diff)
-              (erase-buffer)
-              (if typepad-auto-next
-                (typepad-send-next)
-                (other-window 1)))
-            (progn
-              (erase-buffer)
-              (typepad-random-sending-text)
-              (typepad-redraw-readonly-buffer)))
+          (progn
+            (typepad-diff)
+            (typepad-time-end)
+            (erase-buffer)
+            (if typepad-auto-next
+              (typepad-send-next)
+              (progn
+                (other-window 1))))
+          (progn
+            (erase-buffer)
+            (typepad-random-sending-text)
+            (typepad-redraw-readonly-buffer)))
         ))))
 
 (add-hook 'typepad-mode-hook
@@ -421,7 +423,7 @@
 (defun typepad-send-text ()
   "发文"
   (interactive)
-  (setq sending-text (nth (- typepad-current-paragraph 1) typepad-short))
+  (setq typepad-sending-text (nth (- typepad-current-paragraph 1) typepad-short))
   (typepad-redraw-readonly-buffer))
 
 (defun typepad-send-next ()
@@ -431,7 +433,7 @@
     (if (<= typepad-total-paragraph current)
       (message "当前已是最后一段")
       (progn
-        (when (string= (buffer-name) readonly-buffer-name)
+        (when (string= (buffer-name) typepad-readonly-buffer)
           (other-window 1))
         (setq typepad-current-paragraph (1+ current))
         (typepad-send-text)
@@ -444,7 +446,7 @@
     (if (eq current 1)
       (message "当前已是第一段")
       (progn
-        (when (string= (buffer-name) readonly-buffer-name)
+        (when (string= (buffer-name) typepad-readonly-buffer)
           (other-window 1))
         (setq typepad-current-paragraph (1- current))
         (typepad-send-text)
@@ -452,18 +454,18 @@
 
 (defun typepad-resend ()
   (interactive)
-  (with-current-buffer writable-buffer-name
+  (with-current-buffer typepad-writable-buffer
     (if (/= (point-min) (point-max))
       (progn
         (read-only-mode -1)
-        (erase-buffer)
-        (typepad-time-clear)  )
+        (typepad-time-end)
+        (erase-buffer))
       (message "未开始"))))
 
 (defun typepad-send-nth ()
   "发第n段"
   (interactive)
-  (if (string= (buffer-name) readonly-buffer-name)
+  (if (string= (buffer-name) typepad-readonly-buffer)
     (other-window 1))
   (let ((number (read-number "请输入段数: ")))
     (setq typepad-current-paragraph number)
@@ -592,8 +594,8 @@ ORDER BY id DESC LIMIT 1;" hash))))
 (defun typepad-decode (ind)
   (read (base64-decode-string ind)))
 
-(let ((buf writable-buffer-name)
-       (r-buf readonly-buffer-name))
+(let ((buf typepad-writable-buffer)
+       (r-buf typepad-readonly-buffer))
   (add-hook 'typepad-mode-hook
     (lambda ()
       (buffer-focus-out-callback (lambda () (typepad-focus-out buf r-buf)))
@@ -634,18 +636,18 @@ Order BY s.id DESC;
 (defun typepad-exit ()
   (interactive)
   (delete-other-windows)
-  (when (get-buffer readonly-buffer-name)
-    (kill-buffer readonly-buffer-name))
-  (when (get-buffer writable-buffer-name)
-    (kill-buffer writable-buffer-name)))
+  (when (get-buffer typepad-readonly-buffer)
+    (kill-buffer typepad-readonly-buffer))
+  (when (get-buffer typepad-writable-buffer)
+    (kill-buffer typepad-writable-buffer)))
 
 ;;;###autoload
 (defun typepad ()
   (interactive)
   (typepad-load-dir)
   (typepad-create-sqlite)
-  (if (and (buffer-live-p (get-buffer readonly-buffer-name))
-        (buffer-live-p (get-buffer writable-buffer-name)))
+  (if (and (buffer-live-p (get-buffer typepad-readonly-buffer))
+        (buffer-live-p (get-buffer typepad-writable-buffer)))
     (typepad-re-window)
     (typepad-create-window)))
 
