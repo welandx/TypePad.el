@@ -1,12 +1,12 @@
 ;;; typepad-time.el --- timer -*- lexical-binding: t; -*-
 
-(defvar typepad-init-time 'nil
+(defvar typepad-init-time 0
   "输入的开始时间")
 
-(defvar typepad-current-time 'nil
+(defvar typepad-current-time 0
   "当前时间")
 
-(defvar typepad-time-duration 'nil
+(defvar typepad-time-duration 0
   "输入时间")
 
 (defvar typepad-key-rate 0.0

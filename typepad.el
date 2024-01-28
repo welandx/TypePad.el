@@ -80,7 +80,7 @@
 (defvar typepad-code-len 0
   "The code length of user input.")
 
-(defvar typepad-key-acc nil)
+(defvar typepad-key-acc 1)
 
 (defvar typepad-short nil
   "short text.")

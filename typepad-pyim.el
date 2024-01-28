@@ -97,9 +97,12 @@
 
 (defun typepad-pyim-key-acc ()
   "计算键准"
-  (let ((key-acc (- 1 (/ (float typepad-pyim-delete)
+  (if (and (= 0 typepad-pyim-delete)
+        (= 0 typepad-pyim-key-press))
+    1
+    (let ((key-acc (- 1 (/ (float typepad-pyim-delete)
                         (float typepad-pyim-key-press)))))
-    key-acc))
+    key-acc)))
 
 (defun typepad-pyim-code-len (num)
   "计算码长"
